@@ -10,7 +10,7 @@ UPLOAD_DIR = f"{BASE_URL}hackable/uploads/"
 # Use the proper file inclusion URL
 LFI_VULN_URL = f"{BASE_URL}vulnerabilities/fi/?page="
 COOKIE = {
-    'PHPSESSID': 'h52lq6jn4p4qm37pcrm815kjh0',
+    'PHPSESSID': 'h52lq6jn4p4qm37pcrm815kjh0', # Change this to your PHPSESSID
     'security': 'medium'
 }
 PAYLOAD_FILENAME = "malicious.php"
