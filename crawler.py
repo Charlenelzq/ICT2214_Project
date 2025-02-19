@@ -13,11 +13,14 @@ NUM_THREADS = 5
 lock = threading.Lock()
 # Create a set to store found URLs
 found_urls = set()
+uploadable_urls = set()
 
 
 def check_directory(url, directory, COOKIE):
     full_url = f"{url}{directory}"
 
+    if "logout" in full_url:
+        return
     try:
         response = requests.get(full_url, allow_redirects=True, cookies=COOKIE)
         if response.status_code == 200:
@@ -25,30 +28,30 @@ def check_directory(url, directory, COOKIE):
             anchor_tags = soup.find_all('a', recursive=True)
             for tag in anchor_tags:
                 href = tag.get('href')
-                if not urlparse(href).scheme:
-                    print(href)
+                if not urlparse(href).scheme and not href.startswith('#'):
                     if href.startswith('/'):
-                        found_urls.add(url + href)
+                        found_urls.add(href)
                     elif href.startswith('../'):
                         count = href.count('../')
                         tmp = directory.split('/')[:-(count+1)]
-                        # print('/'.join(tmp))
-                        href = url + '/'.join(tmp) + href[count*3:]
+                        href = '/'.join(tmp) + href[count*3:]
                         found_urls.add(href)
                     else:
                         if href.startswith('./'):
-                            found_urls.add(url + directory + href[1:])
+                            found_urls.add(directory + href[1:])
                         else:
                             if href.startswith('?'):
-                                found_urls.add(url + "/".join(directory.split("?")[:-1]) + href)
+                                found_urls.add("/".join(directory.split("?")[:-1]) + href)
                             else:
-                                found_urls.add(url + "/".join(directory.split("/")[:-2]) + href)
+                                found_urls.add("/".join(directory.split("/")[:-2]) + href)
                           
                         
-
-            # Store result safely
-            with lock:
-                found_urls.add(full_url)
+            # Check if the page contains a file upload capability
+            file_upload_form = soup.find_all('input', {'type': 'file'})
+            if file_upload_form:
+                # print(f"[+] Found file upload form at: {full_url}")
+                with lock:
+                    uploadable_urls.add(full_url)
 
     except requests.exceptions.RequestException:
         pass
@@ -63,12 +66,12 @@ def main_crawl(url, wordlist, COOKIE):
     with ThreadPoolExecutor(max_workers=NUM_THREADS) as executor:
         executor.map(lambda directory: check_directory(url, directory, COOKIE), found_urls)
 
-    # Output the results (optional)
-    print("\n[+] Found Pages:")
-    for page in found_urls:
-        print(f"URL: {page}")
-    print(f"\n[+] Found {len(found_urls)} pages")
-    return found_urls
+    # # Output the results (optional)
+    # print("\n[+] Found Pages:")
+    # for page in found_urls:
+    #     print(f"URL: {page}")
+    # print(f"\n[+] Found {len(found_urls)} pages")
+    return found_urls, uploadable_urls
 
     
    

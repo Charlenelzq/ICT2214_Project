@@ -51,9 +51,16 @@ def getArgs():
 def main():
     # Main function
     arguments = getArgs()
-    found_urls = crawler.main_crawl(arguments.url, arguments.wordlist, COOKIE)
+    found_urls, uploadable_urls = crawler.main_crawl(arguments.url, arguments.wordlist, COOKIE)
     print("Crawling complete.")
-    
+
+    print ("Found URLs:")
+    for url in found_urls:
+        print(url)
+    print("\nUploadable URLs:")
+    for url in uploadable_urls:
+        print(url)
+
 
 
 
