@@ -9,7 +9,7 @@ import threading
 
 
 NUM_THREADS = 5
-# Shared list to store results
+LFI_PARAMETERS_FILE = "wordlists/lfi-parameters.txt"
 lock = threading.Lock()
 # Create a set to store found URLs
 found_urls = set()
@@ -49,7 +49,6 @@ def check_directory(url, directory, COOKIE):
             # Check if the page contains a file upload capability
             file_upload_form = soup.find_all('input', {'type': 'file'})
             if file_upload_form:
-                # print(f"[+] Found file upload form at: {full_url}")
                 with lock:
                     uploadable_urls.add(full_url)
 
@@ -57,6 +56,30 @@ def check_directory(url, directory, COOKIE):
         pass
 
 
+def clean_found_urls(base_url, found_urls):
+    cleaned_urls = set()
+    for url in found_urls:
+        if "?" in url:
+            tmp = url.split("?")
+            tmp1 = tmp[1].split("=")[0]
+            cleaned_urls.add(base_url + tmp[0] + "?" + tmp1 + "=")
+        else:
+            cleaned_urls.add(base_url + url)
+    return cleaned_urls
+
+
+def check_lfi(url_list):
+    lfi_targets = set()
+    with open(LFI_PARAMETERS_FILE, "r") as file:
+        lfi_parameters = [line.strip() for line in file]
+    for url in url_list:
+        for payload in lfi_parameters:
+            if payload in url:
+                lfi_targets.add(url)
+                print(f"[+] Potential LFI vulnerability found at: {url}")
+    return lfi_targets
+
+            
 def main_crawl(url, wordlist, COOKIE):
     with open(wordlist, "r") as file:
         directories = [line.strip() for line in file]
