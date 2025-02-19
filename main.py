@@ -54,8 +54,17 @@ def main():
     print("\nPotential LFI vulnerabilities...")
     lfi_targets = crawler.check_lfi(found_urls)
 
-    # Generate the payload
-    upload.create_payload(PAYLOAD_FILENAME)
+     # Generate the payloads
+    payload_filenames = upload.create_payloads()
+
+    # Upload payloads
+    uploaded_files, failed_files = upload.upload_files(payload_filenames)
+
+    # Test execution of uploaded files
+    executed_files = upload.test_uploaded_files(uploaded_files)
+
+    # Generate the vulnerability report
+    generate_report(uploaded_files, failed_files, executed_files)
 
     # Upload the payload
     file_uploaded = False
@@ -89,8 +98,6 @@ def main():
 
     # --- Report Generation ---
     generate_report(direct_file_url, lfi_found_url, command_results)
-    
-
     
 
 
