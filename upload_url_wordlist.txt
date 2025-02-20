@@ -1,0 +1,8 @@
+# this is where we POST the file 
+
+vulnerabilities/upload/
+admin/upload/
+files/upload/
+upload/
+uploads/
+cgi-bin/upload/
