@@ -8,13 +8,12 @@ import lfi
 import uploadv2
 
 
-URL = "http://localhost/DVWA/" #"http://192.168.52.129/DVWA/"
+URL = "http://ict2214p1b2.mooo.com/" #"http://192.168.52.129/DVWA/"
 #UPLOAD_DIR = f"{URL}hackable/uploads/"
 UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
 WORDLIST = "wordlists/test"
 COOKIE = {
-    'PHPSESSID': 'hello',
-    'security': 'medium'
+    'PHPSESSID': 'nigm2pdtrjo5dfc82n8gdiv2l5'
 }
 
 PAYLOAD_FILENAME = "malicious.php"
