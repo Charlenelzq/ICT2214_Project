@@ -1,5 +1,4 @@
 # this is where the file appears after being uploaded
-
 hackable/uploads/
 public/uploads/
 assets/uploads/

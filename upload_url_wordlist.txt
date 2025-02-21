@@ -1,5 +1,4 @@
 # this is where we POST the file 
-
 vulnerabilities/upload/
 admin/upload/
 files/upload/

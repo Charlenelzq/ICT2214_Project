@@ -1,22 +1,10 @@
-#testing uploadv2.py and mainv2.py, still under testing
-
-#!/usr/bin/env python3
 import requests
 import os
 import subprocess
 import time
 import urllib.parse
 
-# Configuration for DVWA
-# BASE_URL = "http://localhost/DVWA/"
-# UPLOAD_URL = f"{BASE_URL}vulnerabilities/upload/" testing wordlist
-# UPLOAD_DIR = f"{BASE_URL}hackable/uploads/" testing wordlist
-# LOCAL_UPLOAD_PATH = "/var/www/html/DVWA/hackable/uploads/" testing wordlist
-# COOKIE = {
-#     'PHPSESSID': 'jtilroio40ftke9gn0qvqj17m1',
-#     'security': 'medium'
-# }
-REPORT_FILENAME = "vuln_report.txt"
+#REPORT_FILENAME = "vuln_report.txt"
 
 def embed_php_in_image(image_file, output_file):
     """Embed PHP payload inside an image metadata using exiftool."""
