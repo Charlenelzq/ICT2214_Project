@@ -22,6 +22,8 @@ def check_directory(url, directory, COOKIE):
     full_url = f"{url}{directory}"
     new_url = None
 
+    # print(full_url)
+
     if "logout" in full_url:
         return
     try:
@@ -31,39 +33,51 @@ def check_directory(url, directory, COOKIE):
             anchor_tags = soup.find_all('a', recursive=True)
             for tag in anchor_tags:
                 href = tag.get('href')
-                print(href)
+                # print(href)
                 if not urlparse(href).scheme and not href.startswith('#'):
                     if href.startswith('/'):
-                        new_url = (href)
+                        # print("1: "+href)
+                        add_url_to_queue(href)
+                        # new_url = (href)
                     elif href.startswith('../'):
                         count = href.count('../')
                         tmp = directory.split('/')[:-(count+1)]
                         href = '/'.join(tmp) + href[count*3:]
-                        new_url = href
+                        # print("2: "+href)
+                        add_url_to_queue(href)
+                        # new_url = href
                     else:
                         if href.startswith('./'):
-                            new_url = directory + href[1:]
+                            # new_url = directory + href[1:]
+                            add_url_to_queue("/".join(directory.split("/")[:-2]) + href[1:])
+                            # print("3: "+"/".join(directory.split("/")[:-2]) + href[1:])
                         else:
                             if href.startswith('?'):
-                                new_url = "/".join(directory.split("?")[:-1]) + href
+                                add_url_to_queue("/".join(directory.split("?")[:-1]) + href)
+                                # new_url = "/".join(directory.split("?")[:-1]) + href
+                                # print("4: "+"/".join(directory.split("?")[:-1]) + href)
                             else:
-                                new_url = "/".join(directory.split("/")[:-2]) + href
+                                add_url_to_queue("/".join(directory.split("/")[:-2]) + href)
+                                # new_url = "/".join(directory.split("/")[:-2]) + href
+                                # print("5: "+"/".join(directory.split("/")[:-2]) + href)
                           
                         
             # Check if the page contains a file upload capability
             file_upload_form = soup.find_all('input', {'type': 'file'})
             
-            
-            if new_url and new_url not in processed_url:
-                with lock:
-                    processed_url.add(new_url)
-                    found_urls_queue.put(new_url)
             if file_upload_form:
                 with lock:
                     uploadable_urls.add(full_url)
 
     except requests.exceptions.RequestException:
         pass
+
+def add_url_to_queue(url):
+    if url not in processed_url:
+        with lock:
+            found_urls_queue.put(url)
+            processed_url.add(url)
+        
 
 
 def clean_found_urls(base_url, processed_url):
@@ -110,6 +124,7 @@ def main_crawl(url, wordlist, COOKIE):
                 executor.submit(check_directory, url, directory, COOKIE)
             executor.shutdown(wait=True)
         
+    
     # # Process newly found URLs
     # while not found_urls_queue.empty():
     #     directory = found_urls_queue.get()

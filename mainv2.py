@@ -7,13 +7,14 @@ import crawler
 import lfi
 import uploadv2
 
-
-URL = "http://ict2214p1b2.mooo.com/" #"http://192.168.52.129/DVWA/"
+URL = "http://192.168.52.129/DVWA/"
+#URL = "http://ict2214p1b2.mooo.com/"
 #UPLOAD_DIR = f"{URL}hackable/uploads/"
 UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
 WORDLIST = "wordlists/test"
 COOKIE = {
-    'PHPSESSID': 'ij9qqj2c6ui367p38hqjtik5ju'
+    'PHPSESSID': 'r9sf1ov22qkd87dqcu9djmp6hg',
+    'security': 'medium'
 }
 
 PAYLOAD_FILENAME = "malicious.php"
