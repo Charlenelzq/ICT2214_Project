@@ -13,7 +13,7 @@ URL = "http://ict2214p1b2.mooo.com/" #"http://192.168.52.129/DVWA/"
 UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
 WORDLIST = "wordlists/test"
 COOKIE = {
-    'PHPSESSID': 'nigm2pdtrjo5dfc82n8gdiv2l5'
+    'PHPSESSID': 'ij9qqj2c6ui367p38hqjtik5ju'
 }
 
 PAYLOAD_FILENAME = "malicious.php"
