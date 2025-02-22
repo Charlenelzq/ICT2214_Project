@@ -1,9 +1,10 @@
 # this is where the file appears after being uploaded/
-.profile
-_files
-_images
-_media
-_tmpfileop
+tools/
+.profile/
+_files/
+_images/
+_media/
+_tmpfileop/
 test.php/
 App_Data/uploads/
 archive/uploads/

