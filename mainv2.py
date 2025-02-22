@@ -9,7 +9,7 @@ import uploadv2
 
 # Fictional Company
 URL = "http://ict2214p1b2.mooo.com/"
-COOKIE = {"PHPSESSID": "t9i6h0t3p3vu491qg86qrsispc"}
+COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"}
 PAYLOAD_FILENAME = "test.php"
 
 # DVWA
@@ -89,7 +89,7 @@ def main():
     #     exit(1)
     # direct_file_url = dynamic_upload_dir + PAYLOAD_FILENAME
     # print(f"[+] Direct file URL (if accessible): {direct_file_url}")
-    
+
     # --- LFI Brute Force Phase ---
     lfi_found_url = None
     for target in lfi_confirmed_targets:
