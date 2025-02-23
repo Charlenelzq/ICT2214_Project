@@ -103,7 +103,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             <form action="submit_complaint.php" method="post" enctype="multipart/form-data">
                 <div>
                     <label for="complaint">Complaint:</label>
-                    <textarea id="complaint" name="complaint" rows="4" required></textarea>
+                    <textarea id="complaint" name="complaint" rows="4" ></textarea>
                 </div>
                 <div>
                     <label for="attachment">Attach a picture:</label>
