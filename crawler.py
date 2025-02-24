@@ -156,8 +156,7 @@ def get_form_details(base_url, uploadable_urls, session, COOKIE):
             input_fields = []
             textareas= []
             for input_field in inputs:
-                if input_field.get("type") != "submit":
-                    input_fields.append((input_field.get("name"), input_field.get("type"), input_field.get("value")))
+                input_fields.append((input_field.get("name"), input_field.get("type"), input_field.get("value")))
 
             for textarea_field in textarea:
                 textareas.append(textarea_field.get("name"))

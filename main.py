@@ -10,10 +10,15 @@ import lfi
 import uploadv2
 
 # Target Configuration
-URL = "http://ict2214p1b2.mooo.com/"
+# URL = "http://ict2214p1b2.mooo.com/"
+URL = "http://192.168.52.129/DVWA/"
 UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
 WORDLIST = "wordlists/test"
-COOKIE = {"PHPSESSID": "nigm2pdtrjo5dfc82n8gdiv2l5"}
+COOKIE = {
+    "PHPSESSID": "ouljkmhv6aeinf05mgudqjj6i3",
+    "security": "medium",
+}
+# COOKIE = {"PHPSESSID": "nigm2pdtrjo5dfc82n8gdiv2l5"}
 
 # PAYLOAD_FILENAME = "malicious.php"
 REPORT_FILENAME = "vuln_report.txt"
