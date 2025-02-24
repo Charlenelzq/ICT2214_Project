@@ -1,0 +1,10 @@
+Vulnerability Report
+====================
+
+❌ **No files were successfully uploaded.**
+
+🚫 **Failed Uploads:**
+- shell.php.jpg
+- shell.php.png
+
+⚠ **No files executed successfully.**
