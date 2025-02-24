@@ -116,7 +116,7 @@ def upload_file(payload_filename, upload_url, cookie, form_details, mime_types_f
     """
     # Headers
     headers = {
-        "Cookie": cookie
+        "Cookie": "; ".join([f"{key}={value}" for key, value in cookie.items()])
     }
 
     data = {}

@@ -1,13 +1,24 @@
 Vulnerability Report
 ====================
 
-✅ **Successfully Uploaded Files:**
-- shell.php.jpg
-- shell.php.png
+❌ **No files were successfully uploaded.**
 
 🚫 **Failed Uploads:**
+- shell.php.jpg
+- shell.php.png
 - shell.pHp5
 - shell.png.php
+- shell.php#.png
+- shell.php%20
+- shell.phpJunk123png
+- shell.png.jpg.php
+- shell.php%00.png
+- shell.php...
+- shell.php.png
+- shell.asp::$data
+- shell.php%0a
+- shell.php%00
+- shell.php%0d%0a
+- shell.php%00.png%00.jpg
 
-⚡ **Files Successfully Executed:**
-- http://ict2214p1b2.mooo.com/complaint.php?file=././shell.php.jpg
+⚠ **No files executed successfully.**
