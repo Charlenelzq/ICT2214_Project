@@ -123,19 +123,75 @@ def main_crawl(url, wordlist, COOKIE):
                 directory = found_urls_queue.get()
                 executor.submit(check_directory, url, directory, COOKIE)
             executor.shutdown(wait=True)
-        
-    
-    # # Process newly found URLs
-    # while not found_urls_queue.empty():
-    #     directory = found_urls_queue.get()
-    #     check_directory(url, directory, COOKIE)
-
-    # # Output the results (optional)
-    # print("\n[+] Found Pages:")
-    # for page in processed_url:
-    #     print(f"URL: {page}")
-    # print(f"\n[+] Found {len(processed_url)} pages")
     return processed_url, uploadable_urls
 
+
+def get_form_details(base_url, uploadable_urls, session, COOKIE):
+    form_details = []
+    for url in uploadable_urls:
+        response = session.get(url, cookies=COOKIE)
+        soup = BeautifulSoup(response.text, "html.parser")
+        form = soup.find("form")
+        if form:
+            # Get all input fields
+            inputs = form.find_all("input")
+            textarea = form.find_all("textarea")
+
+            action = form.get("action")
+
+            # resolve url of action
+            if action.startswith('/'):
+                action = base_url + action
+            elif action.startswith('../'):
+                count = action.count('../')
+                tmp = url.split('/')[:-(count+1)]
+                action = '/'.join(tmp) + action[count*3:]
+            else:
+                if action.startswith('./'):
+                    action = "/".join(url.split("/")[:-1]) + action[1:]
+                else:
+                    action = "/".join(url.split("/")[:-1]) + '/' + action  
+            
+            # Resolve input fields
+            input_fields = []
+            textareas= []
+            for input_field in inputs:
+                if input_field.get("type") != "submit":
+                    input_fields.append((input_field.get("name"), input_field.get("type"), input_field.get("value")))
+
+            for textarea_field in textarea:
+                textareas.append(textarea_field.get("name"))
+
+            form_details.append({
+                "url": url,
+                "action": action,
+                "inputs": input_fields,
+                "textarea": textareas
+            }) 
+
+    return form_details
+
     
-   
+def get_form_action_urls(base_url, uploadable_urls, session, COOKIE):
+    form_action_urls = []
+    # Get Uploadable URl's form action
+    for url in uploadable_urls:
+        response = session.get(url, cookies=COOKIE)
+        soup = BeautifulSoup(response.text, "html.parser")
+        form = soup.find("form")
+        if form:
+            action = form.get("action")
+            if action:
+                if action.startswith('/'):
+                        form_action_urls.append(base_url + action)
+                elif action.startswith('../'):
+                    count = action.count('../')
+                    tmp = url.split('/')[:-(count+1)]
+                    action = '/'.join(tmp) + action[count*3:]
+                    form_action_urls.append(action)
+                else:
+                    if action.startswith('./'):
+                        form_action_urls.append("/".join(url.split("/")[:-2]) + action[1:])
+                    else:
+                        form_action_urls.append("/".join(url.split("/")[:-1]) + '/' + action)
+    return form_action_urls

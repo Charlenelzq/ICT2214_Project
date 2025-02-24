@@ -1,0 +1,13 @@
+Vulnerability Report
+====================
+
+✅ **Successfully Uploaded Files:**
+- shell.php.jpg
+- shell.php.png
+
+🚫 **Failed Uploads:**
+- shell.pHp5
+- shell.png.php
+
+⚡ **Files Successfully Executed:**
+- http://ict2214p1b2.mooo.com/complaint.php?file=././shell.php.jpg
