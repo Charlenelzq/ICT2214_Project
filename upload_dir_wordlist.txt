@@ -1,4 +1,5 @@
 # this is where the file appears after being uploaded/
+./
 tools/
 .profile/
 _files/

