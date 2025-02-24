@@ -6,7 +6,6 @@ _files/
 _images/
 _media/
 _tmpfileop/
-test.php/
 App_Data/uploads/
 archive/uploads/
 assets/uploads/
