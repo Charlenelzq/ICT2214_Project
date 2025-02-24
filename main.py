@@ -10,15 +10,17 @@ import lfi
 import uploadv2
 
 # Target Configuration
-# URL = "http://ict2214p1b2.mooo.com/"
-URL = "http://192.168.52.129/DVWA/"
+URL = "http://ict2214p1b2.mooo.com/"
+COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"}
+
+# URL = "http://127.0.0.1/DVWA/"
+# COOKIE = {
+#     "PHPSESSID": "7od1c1i037769jfj92p5vscr4k",
+#     "security": "medium",
+# }
+
 UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
 WORDLIST = "wordlists/test"
-COOKIE = {
-    "PHPSESSID": "ouljkmhv6aeinf05mgudqjj6i3",
-    "security": "medium",
-}
-# COOKIE = {"PHPSESSID": "nigm2pdtrjo5dfc82n8gdiv2l5"}
 
 # PAYLOAD_FILENAME = "malicious.php"
 REPORT_FILENAME = "vuln_report.txt"
@@ -82,12 +84,8 @@ def main():
     session = requests.Session()
 
     # Ask for indicator for LFI
-    success_indicator = input(
-        "Enter the success indicator (e.g., text that appears on success): "
-    )
-    failure_indicator = input(
-        "Enter the failure indicator (e.g., text that indicates failure): "
-    )
+    success_indicator = input("Enter the text that indicates success: ")
+    failure_indicator = input("Enter the text that indicates failure: ")
 
     # 🔍 Step 1: Crawl for URLs
     found_urls, uploadable_urls = crawler.main_crawl(URL, WORDLIST, COOKIE)
@@ -135,7 +133,9 @@ def main():
     for form in form_details:
         form_action_url = form["action"]
         for payload in generated_payloads:
-            if uploadv2.upload_file(payload, form_action_url, COOKIE, form, CONTENT_TYPE_FILE):
+            if uploadv2.upload_file(
+                payload, form_action_url, COOKIE, form, CONTENT_TYPE_FILE
+            ):
                 print(f"[+] File uploaded successfully: {payload} -> {form_action_url}")
                 uploaded_files.append(payload)
             else:
@@ -168,9 +168,14 @@ def main():
 
     # 🔹 Step 7: Test execution
     executed_files = []
-    for target in lfi_targets:
+    for target in lfi_confirmed_targets:
         lfi_found_url = lfi.brute_force_lfi(
-            target, uploaded_files, success_indicator, failure_indicator, session, COOKIE
+            target,
+            uploaded_files,
+            success_indicator,
+            failure_indicator,
+            session,
+            COOKIE,
         )
         if lfi_found_url:
             print(f"[+] LFI Found at: {lfi_found_url}")

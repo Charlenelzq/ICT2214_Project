@@ -1,10 +1,9 @@
 Vulnerability Report
 ====================
 
-❌ **No files were successfully uploaded.**
-
-🚫 **Failed Uploads:**
+✅ **Successfully Uploaded Files:**
 - shell.php.jpg
 - shell.php.png
 
-⚠ **No files executed successfully.**
+⚡ **Files Successfully Executed:**
+- http://ict2214p1b2.mooo.com/complaint.php?file=././shell.php.jpg

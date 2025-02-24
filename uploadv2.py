@@ -3,7 +3,7 @@ import os
 import subprocess
 import shutil
 
-def load_mime_types(file_path="content_type.txt"):
+def load_mime_types(file_path="content_type_small.txt"):
     """ Load MIME types from a file. """
     try:
         with open(file_path, "r") as f:
@@ -110,7 +110,7 @@ def create_payloads():
 #     return False
 
 
-def upload_file(payload_filename, upload_url, cookie, form_details, mime_types_file="content_type.txt"):
+def upload_file(payload_filename, upload_url, cookie, form_details, mime_types_file="content_type_small.txt"):
     """
     Attempt to upload a file using multiple MIME types.
     """

