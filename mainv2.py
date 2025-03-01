@@ -1,3 +1,5 @@
+# NOT IN USE
+
 from argparse import ArgumentParser
 from sys import exit
 import requests

