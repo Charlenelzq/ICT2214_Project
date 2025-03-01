@@ -21,7 +21,7 @@ COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"}
 
 WORDLIST = "wordlists/test"
 CONTENT_TYPE_WORDLIST = "wordlists/content_type_big.txt"  # wordlists/content_type_small.txt OR wordlists/content_type_big.txt
-UPLOAD_DIR_WORDLIST = "wordlists/upload_dir_wordlist_small.txt"  # wordlists/upload_dir_wordlist_small.txt OR wordlists/upload_dir_wordlist_big.txt
+UPLOAD_DIR_WORDLIST = "wordlists/upload_dir_wordlist_big.txt"  # wordlists/upload_dir_wordlist_small.txt OR wordlists/upload_dir_wordlist_big.txt
 
 REPORT_FILENAME = "vuln_report.txt"
 

