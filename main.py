@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import urllib.parse
 import crawler
 import lfi
-import uploadv2
+import upload
 
 # Target Configuration (own website)
 URL = "http://ict2214p1b2.mooo.com/"
