@@ -1,0 +1,6 @@
+application/x-httpd-php
+application/x-php
+image/svg+xml
+image/jpeg
+image/png
+image/gif
