@@ -15,6 +15,7 @@ Before running the script, follow these steps:
    - Comment/uncomment the necessary sections in the provided script based on the target.
 
 ## Login Credentials
+- if using our website, you may use any ONE of the credentials listed
 
 | Target | Username | Password |
 |--------|----------|----------|
