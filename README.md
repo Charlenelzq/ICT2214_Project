@@ -3,6 +3,16 @@
 ## Overview
 This project combines **Local File Inclusion (LFI) and File Upload Vulnerabilities** to exploit web applications effectively. The script provided automates this process, allowing for efficient testing and exploitation.
 
+## Features
+✅ Automated LFI detection using common traversal patterns.  
+✅ File Upload scanning to locate vulnerable directories.  
+✅ Bypass techniques using encoding, PHP wrappers, and log poisoning.  
+✅ Session handling for authenticated web applications.  
+✅ Brute-force LFI attempts across various directories.  
+✅ Command execution via LFI to escalate access.  
+✅ Multi-threaded scanning for faster exploitation.  
+✅ Customizable payloads to evade WAFs and security filters.
+
 ## Getting Started
 Before running the script, follow these steps:
 
@@ -36,9 +46,14 @@ To run the script, simply type:
 python main.py
 ```
 
-The script will prompt indicators for success and failure:
+The script will prompt indicators for success and failure: (depending on which website you are targeting)
+For our website:
 - If prompted for success, just leave it empty. (press enter)
 - If prompted for failure, enter: File not found.
+
+For DVWA:
+- If prompted for success, just leave it empty. (press enter)
+- If prompted for failure, just leave it empty. (press enter)
 
 ## Viewing Results
 After executing the script, the results will be saved in `vuln_report.txt`. To view the output, simply run:
