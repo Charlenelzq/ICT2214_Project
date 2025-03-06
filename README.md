@@ -1,7 +1,7 @@
 # FusionInclusion (LFI and File Upload Vulnerability Exploit)
 
 ## Overview
-This project combines **Local File Inclusion (LFI) and File Upload Vulnerabilities** to exploit web applications effectively. The script provided automates this process, allowing for efficient testing and exploitation.
+This project combines **Local File Inclusion (LFI) and File Upload Vulnerabilities** to exploit web applications effectively. The script automates the testing process, making it easier to identify vulnerabilities.
 
 ## Features
 ✅ Automated LFI detection using common traversal patterns.  
