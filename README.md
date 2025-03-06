@@ -29,6 +29,17 @@ Before running the script, follow these steps:
 ## Wordlist Selection
 Within the project folder, we have provided both **short** and **long** wordlists. Choose the appropriate one based on your testing needs and update the script accordingly.
 
+## Running the Script
+
+To run the script, simply type:
+```sh
+python main.py
+```
+
+The script will prompt indicators for success and failure:
+- If prompted for success, just leave it empty. (press enter)
+- If prompted for failure, enter: File not found.
+
 ## Viewing Results
 After executing the script, the results will be saved in `vuln_report.txt`. To view the output, simply run:
 ```sh
