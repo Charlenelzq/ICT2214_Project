@@ -11,7 +11,7 @@ import upload
 
 # Target Configuration (own website)
 URL = "http://ict2214p1b2.mooo.com/"
-COOKIE = {"PHPSESSID": "umi89fhds05jku8kcfe007k7sq"} # change this to your own cookie
+COOKIE = {"PHPSESSID": "ij9qqj2c6ui367p38hqjtik5ju"} # change this to your own cookie
 
 # Target Configuration (DVWA)
 # URL = "http://127.0.0.1/DVWA/"
