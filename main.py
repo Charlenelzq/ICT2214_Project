@@ -21,7 +21,7 @@ COOKIE = {"PHPSESSID": "umi89fhds05jku8kcfe007k7sq"} # change this to your own c
 # }
 
 WORDLIST = "wordlists/test"
-CONTENT_TYPE_WORDLIST = "wordlists/content_type_big.txt"  # wordlists/content_type_small.txt OR wordlists/content_type_big.txt
+CONTENT_TYPE_WORDLIST = "wordlists/content_type_small.txt"  # wordlists/content_type_small.txt OR wordlists/content_type_big.txt
 UPLOAD_DIR_WORDLIST = "wordlists/upload_dir_wordlist_small.txt"  # wordlists/upload_dir_wordlist_small.txt OR wordlists/upload_dir_wordlist_big.txt
 
 REPORT_FILENAME = "vuln_report.txt"
@@ -63,8 +63,8 @@ def main():
     session = requests.Session()
 
     # Ask for indicator for LFI
-    success_indicator = input("Enter the text that indicates success: ")
-    failure_indicator = input("Enter the text that indicates failure: ")
+    success_indicator = input("Enter the text that indicates success: ") # do not put anything 
+    failure_indicator = input("Enter the text that indicates failure: ") # put "File not found"
 
 
     # Step 1: Crawl for URLs
@@ -96,11 +96,11 @@ def main():
 
 
     # Step 3: Generate payloads
-    generated_payloads = uploadv2.create_payloads()
+    generated_payloads = upload.create_payloads()
 
 
     # Step 4: Load MIME types
-    mime_types = uploadv2.load_mime_types(CONTENT_TYPE_WORDLIST)
+    mime_types = upload.load_mime_types(CONTENT_TYPE_WORDLIST)
 
     if not mime_types:
         print("[-] No MIME types found. Exiting.")
@@ -114,7 +114,7 @@ def main():
     for form in form_details:
         form_action_url = form["action"]
         for payload in generated_payloads:
-            if uploadv2.upload_file(
+            if upload.upload_file(
                 payload, form_action_url, COOKIE, form, CONTENT_TYPE_WORDLIST
             ):
                 print(f"[+] File uploaded successfully: {payload} -> {form_action_url}")
@@ -123,7 +123,7 @@ def main():
                 failed_files.append(payload)
 
     # Step 6: Detect upload directory
-    dynamic_upload_dir = uploadv2.get_upload_directory(
+    dynamic_upload_dir = upload.get_upload_directory(
         URL, UPLOAD_DIR_WORDLIST, uploaded_files, COOKIE
     )
 
