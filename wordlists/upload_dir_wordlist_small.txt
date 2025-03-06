@@ -1,3 +1,4 @@
 # this is where the file appears after being uploaded/
 ./
 tools/
+hackable/uploads/

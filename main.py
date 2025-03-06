@@ -10,15 +10,15 @@ import lfi
 import upload
 
 # Target Configuration (own website)
-URL = "http://ict2214p1b2.mooo.com/"
-COOKIE = {"PHPSESSID": "ij9qqj2c6ui367p38hqjtik5ju"} # change this to your own cookie
+# URL = "http://ict2214p1b2.mooo.com/"
+# COOKIE = {"PHPSESSID": "9amrgdojgjebidiqqse4c5jpsr"} # change this to your own cookie
 
 # Target Configuration (DVWA)
-# URL = "http://127.0.0.1/DVWA/"
-# COOKIE = {
-#     "PHPSESSID": "7od1c1i037769jfj92p5vscr4k", # change this to your own cookie
-#     "security": "medium",
-# }
+URL = "http://127.0.0.1/DVWA/"
+COOKIE = {
+    "PHPSESSID": "klrahlkotaer4v6141694ijb8k", # change this to your own cookie
+    "security": "medium",
+}
 
 WORDLIST = "wordlists/test"
 CONTENT_TYPE_WORDLIST = "wordlists/content_type_small.txt"  # wordlists/content_type_small.txt OR wordlists/content_type_big.txt
