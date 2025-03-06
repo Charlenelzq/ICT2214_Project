@@ -46,14 +46,14 @@ To run the script, simply type:
 python main.py
 ```
 
-The script will prompt indicators for success and failure: (depending on which website you are targeting)
+The script will prompt indicators for success and failure: You can fill in both success and failure indicator or either one of them (depending on which website you are targeting)
 For our website:
 - If prompted for success, just leave it empty. (press enter)
 - If prompted for failure, enter: File not found.
 
 For DVWA:
-- If prompted for success, just leave it empty. (press enter)
-- If prompted for failure, just leave it empty. (press enter)
+- If prompted for success, fill in as per your expected outcome or leave it empty (press enter).
+- If prompted for failure, fill in as per your expected outcome or leave it empty (press enter).
 
 ## Viewing Results
 After executing the script, the results will be saved in `vuln_report.txt`. To view the output, simply run:
