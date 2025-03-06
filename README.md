@@ -47,6 +47,7 @@ python main.py
 ```
 
 The script will prompt indicators for success and failure: You can fill in both success and failure indicator or either one of them (depending on which website you are targeting)
+
 For our website:
 - If prompted for success, just leave it empty. (press enter)
 - If prompted for failure, enter: File not found.
