@@ -17,12 +17,12 @@ This project combines **Local File Inclusion (LFI) and File Upload Vulnerabiliti
 Before running the script, follow these steps:
 
 1. **Modify the Cookie**:
-   - Ensure you update the cookie in the script to match your session.
+   - Ensure you update the cookie in the script to match your session in main.py
 
 2. **Choose Your Target**:
    - Determine whether you are testing on **DVWA (Damn Vulnerable Web Application)** or our own hosted website:  
      `http://ict2214p1b2.mooo.com/`
-   - Comment/uncomment the necessary sections in the provided script based on the target.
+   - Comment/uncomment the necessary sections in main.py script based on the target.
 
 ## Login Credentials
 - if using our website, you may use any ONE of the credentials listed
@@ -37,7 +37,7 @@ Before running the script, follow these steps:
 |  | `ethan` | `password5` |
 
 ## Wordlist Selection
-Within the project folder, we have provided both **short** and **long** wordlists. Choose the appropriate one based on your testing needs and update the script accordingly.
+Within the project folder, we have provided both **short** and **long** wordlists. Choose the appropriate one based on your testing needs and update the main.py script accordingly.
 
 ## Running the Script
 
